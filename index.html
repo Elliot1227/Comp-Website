@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Unseen Record: Biometric Surveillance Accountability</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Load Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Load Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossorigin=""/>
+    <style>
+        /* Custom styles for the map container */
+        #map-container {
+            height: 600px; /* Set a fixed height for the map */
+            width: 100%;
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <!-- Header & Navigation -->
+    <header class="bg-indigo-700 shadow-lg sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-white">The Unseen Record</h1>
+            <nav class="space-x-4">
+                <a href="#map-section" class="text-white hover:text-indigo-200 transition duration-150">Tracker</a>
+                <a href="#bias-section" class="text-white hover:text-indigo-200 transition duration-150">The Bias</a>
+                <a href="#action-section" class="text-white hover:text-indigo-200 transition duration-150">Take Action</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <!-- Hero Section -->
+        <section class="text-center mb-16">
+            <h2 class="text-5xl font-extrabold text-gray-900 mb-4">Accountability for Algorithmic Injustice</h2>
+            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                Tracking the deployment, impact, and discriminatory failures of AI-powered biometric surveillance systems across the nation.
+            </p>
+        </section>
+
+        <!-- The Map: Accountability Tracker -->
+        <section id="map-section" class="mb-16">
+            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">1. The Map: Where is it Used?</h3>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Map Container -->
+                <div class="lg:col-span-2">
+                    <div id="map-container"></div>
+                </div>
+                <!-- Sidebar/Key -->
+                <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-lg">
+                    <h4 class="text-2xl font-bold text-indigo-700 mb-4">Deployment Status Key</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <span class="inline-block w-4 h-4 rounded-full bg-red-600 mr-3"></span>
+                            <span class="text-lg font-medium">Banned (3 Cities)</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="inline-block w-4 h-4 rounded-full bg-yellow-500 mr-3"></span>
+                            <span class="text-lg font-medium">Highly Regulated (5 Agencies)</span>
+                        </li>
+                        <li class="flex items-center">
+                            <span class="inline-block w-4 h-4 rounded-full bg-blue-600 mr-3"></span>
+                            <span class="text-lg font-medium">Unregulated/In Use (10+ Agencies)</span>
+                        </li>
+                    </ul>
+                    <div class="mt-6 pt-4 border-t">
+                        <p class="text-sm text-gray-500">
+                            Click a marker for details on the vendor and documented constitutional concerns in that municipality.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Bias: Data and Disparity Dashboard -->
+        <section id="bias-section" class="mb-16">
+            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">2. The Bias: Who is Affected?</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Statistic Card 1 (Race Bias) -->
+                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-red-500">
+                    <p class="text-6xl font-bold text-red-600">11.25%</p>
+                    <p class="text-lg font-medium mt-2">Lower True Positive Rate for African Faces</p>
+                    <p class="text-sm text-gray-500 mt-1">Algorithms consistently misidentify Black individuals at higher rates compared to Caucasian individuals.</p>
+                </div>
+                <!-- Statistic Card 2 (Intersectionality) -->
+                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
+                    <p class="text-6xl font-bold text-purple-600">+39.89%</p>
+                    <p class="text-lg font-medium mt-2">Misidentification Rate for African Females over 60</p>
+                    <p class="text-sm text-gray-500 mt-1">Bias is compounded across race, age, and gender, leading to the highest error rates in marginalized groups.</p>
+                </div>
+                <!-- Statistic Card 3 (Chilling Effect) -->
+                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-yellow-500">
+                    <p class="text-6xl font-bold text-yellow-600">Fourth Amendment</p>
+                    <p class="text-lg font-medium mt-2">Transformed Public Observation into a Search</p>
+                    <p class="text-sm text-gray-500 mt-1">Continuous FRT tracking creates a searchable "comprehensive chronicle" of a citizen's movements, a violation of protected rights.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- The Alternative: True Public Safety -->
+        <section id="alternative-section" class="mb-16">
+            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">3. The Alternative: True Public Safety</h3>
+            <div class="bg-indigo-50 p-8 rounded-lg shadow-inner">
+                <p class="text-2xl font-medium text-gray-700 mb-4">The False Dichotomy of Safety vs. Privacy</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-xl font-semibold text-red-700">Punitive Surveillance (FRT)</h4>
+                        <ul class="list-disc list-inside ml-4 text-gray-700 space-y-1">
+                            <li>Crime reduction rate of <strong class="font-bold">~14%</strong> across all adopting cities (2002–2020).</li>
+                            <li>High capital cost and perpetuation of systemic bias.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="text-xl font-semibold text-green-700">Public Health Investment</h4>
+                        <ul class="list-disc list-inside ml-4 text-gray-700 space-y-1">
+                            <li>Reduced violence-related arrests by <strong class="font-bold">19% to 29%</strong> (in three years) through healthcare funding.</li>
+                            <li>Focuses on prevention, rehabilitation, and community investment.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Take Action Section -->
+        <section id="action-section" class="text-center py-12 bg-white rounded-lg shadow-xl">
+            <h3 class="text-4xl font-bold text-indigo-700 mb-4">The Only Responsible Path: A Complete Ban.</h3>
+            <p class="text-xl text-gray-700 mb-8">Regulation cannot fix a tool whose fundamental design perpetuates inequality. Use the resources below to demand a ban in your city.</p>
+            <a href="#" class="inline-block px-10 py-4 bg-red-600 text-white text-xl font-semibold rounded-lg hover:bg-red-700 transition duration-300 transform hover:scale-105 shadow-md">
+                Find Your Legislator & Send a Template Letter
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+            <p>&copy; 2025 The Unseen Record. Built on the principles of privacy, equality, and justice.</p>
+        </div>
+    </footer>
+
+    <!-- Load Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
+
+    <script>
+        // --- LEAFLET MAP INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const map = L.map('map-container').setView([39.8283, -98.5795], 4); // Center on the US
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Mock Data Points for Surveillance Deployment
+            const deploymentData = [
+                // Banned (Red Pin)
+                { lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA', status: 'BANNED (2019)', vendor: 'None', impact: 'Banned due to civil liberties concerns.', color: '#ef4444' }, // red-500
+                { lat: 45.5051, lon: -122.6750, city: 'Portland, OR', status: 'BANNED (2020)', vendor: 'None', impact: 'First city to ban commercial and government use.', color: '#ef4444' },
+
+                // Highly Regulated (Yellow Pin)
+                { lat: 42.3601, lon: -71.0589, city: 'Boston, MA', status: 'REGULATED', vendor: 'Axon', impact: 'Strict policy limits use to violent felonies only.', color: '#f59e0b' }, // yellow-500
+                { lat: 38.9072, lon: -77.0369, city: 'Washington, D.C.', status: 'REGULATED (Limited)', vendor: 'Motorola', impact: 'Temporary ban lapsed, but use is highly restricted.', color: '#f59e0b' },
+
+                // Unregulated / In Use (Blue Pin)
+                { lat: 42.3314, lon: -83.0458, city: 'Detroit, MI', status: 'UNREGULATED', vendor: 'DataWorks Plus', impact: 'Robert Williams wrongful arrest case documented here.', color: '#2563eb' }, // blue-600
+                { lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', status: 'IN USE (Schools)', vendor: 'Clearview AI', impact: 'Extensive use by school and local police departments.', color: '#2563eb' },
+                { lat: 40.7128, lon: -74.0060, city: 'New York, NY', status: 'IN USE', vendor: 'IBM', impact: 'Pervasive network of CCTV integrated with FRT systems.', color: '#2563eb' },
+                { lat: 29.7604, lon: -95.3698, city: 'Houston, TX', status: 'UNREGULATED', vendor: 'Clearview AI', impact: 'High risk of bias due to lack of local oversight.', color: '#2563eb' }
+            ];
+
+            // Function to create a custom icon with a color
+            const getCustomIcon = (color) => {
+                return L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div style="background-color: ${color}; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 24] // Centers the pin bottom
+                });
+            };
+
+            // Add markers to the map
+            deploymentData.forEach(data => {
+                const icon = getCustomIcon(data.color);
+
+                const popupContent = `
+                    <div class="font-sans">
+                        <h4 class="text-lg font-bold mb-1">${data.city}</h4>
+                        <p class="text-sm"><strong>Status:</strong> ${data.status}</p>
+                        <p class="text-sm"><strong>Primary Vendor:</strong> ${data.vendor}</p>
+                        <p class="text-sm mt-2">${data.impact}</p>
+                        <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mt-1 inline-block">View Full Case Study &rarr;</a>
+                    </div>
+                `;
+
+                L.marker([data.lat, data.lon], { icon: icon })
+                    .bindPopup(popupContent)
+                    .addTo(map);
+            });
+        });
+    </script>
+</body>
+</html>
