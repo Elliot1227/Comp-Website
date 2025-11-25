@@ -24,11 +24,13 @@
             height: 600px; /* Set a fixed height for the map */
             width: 100%;
             border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.1), 0 4px 6px -2px rgba(255, 255, 255, 0.05);
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+            /* Permanent Dark Theme Background */
+            background-color: #1f2937; 
+            color: #f3f4f6;
             /* Guarantees body content starts below the fixed header (h-20 is 5rem) */
             padding-top: 5rem; 
         }
@@ -47,71 +49,92 @@
         .comparison-table th, .comparison-table td {
             padding: 1.25rem;
             text-align: left;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #4b5563; /* Darker border for table */
         }
         .comparison-table th {
             font-weight: 800;
             font-size: 1.25rem;
+            background-color: #1e40af;
+            color: #f3f4f6;
+        }
+        .comparison-table tr:nth-child(odd) {
+            background-color: #374151; /* Darker odd rows */
         }
         .comparison-table tr:nth-child(even) {
-            background-color: #f8fafc;
+            background-color: #4b5563; /* Darker even rows */
+        }
+        /* Styling for Image Placeholders */
+        .image-placeholder {
+            height: 300px;
+            background-color: #374151;
+            border: 2px dashed #4b5563;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9ca3af;
+            font-weight: 600;
+            margin: 1.5rem 0;
+            border-radius: 0.5rem;
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-800 text-gray-100">
 
-    <!-- Header & Navigation - FIXED POSITION & HIGH Z-INDEX FOR SCROLL FIX -->
-    <header id="main-header" class="bg-indigo-700 shadow-lg fixed top-0 left-0 right-0 h-20">
+    <!-- Header & Navigation - FIXED POSITION & HIGH Z-INDEX -->
+    <header id="main-header" class="bg-gray-900 shadow-lg fixed top-0 left-0 right-0 h-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
             <h1 class="text-3xl font-extrabold text-white">The Unseen Record</h1>
             
-            <!-- Dropdown Menu -->
-            <div class="relative inline-block text-left">
-                <div>
-                    <button type="button" id="dropdown-button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500" aria-expanded="true" aria-haspopup="true">
-                        Navigate Sections
-                        <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                </div>
-                <div id="dropdown-menu" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-button" tabindex="-1">
-                    <div class="py-1" role="none">
-                        <a href="#map-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Tracker</a>
-                        <a href="#bias-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Dashboard</a>
-                        <a href="#alternative-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Dichotomy</a>
-                        <a href="#report-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Report</a>
-                        <a href="#policy-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Legislation</a>
-                        <a href="#action-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Action</a>
+            <div class="flex items-center space-x-4">
+                
+                <!-- Dropdown Menu (Permanent Dark Styling) -->
+                <div class="relative inline-block text-left">
+                    <div>
+                        <button type="button" id="dropdown-button" class="inline-flex justify-center w-full rounded-md border border-gray-600 shadow-sm px-4 py-2 bg-gray-700 text-sm font-medium text-gray-200 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-colors duration-150" aria-expanded="false" aria-haspopup="true">
+                            Navigate Sections
+                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="dropdown-menu" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-button" tabindex="-1">
+                        <div class="py-1" role="none">
+                            <a href="#map-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Tracker</a>
+                            <a href="#bias-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Dashboard</a>
+                            <a href="#analysis-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Analysis</a>
+                            <a href="#alternative-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Dichotomy</a>
+                            <a href="#report-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Report</a>
+                            <a href="#policy-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Legislation</a>
+                            <a href="#action-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Action</a>
+                        </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> 
 
-        <!-- Hero Section - Placeholder Text -->
+        <!-- Hero Section -->
         <section class="text-center mb-16">
-            <h2 class="text-5xl font-extrabold text-gray-900 mb-4">Lorem Ipsum Dolor Sit Amet</h2>
-            <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+            <h2 class="text-5xl font-extrabold text-white mb-4">The Algorithmic Threat to Democracy</h2>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                The chilling reach of AI surveillance—from facial recognition (FRT) to gait analysis—is actively dismantling the bedrock of a free society. Every click, every step, every protest risks being logged into a permanent, searchable record controlled by the state and private profiteers. This isn't about safety; it's about control. We must not stand silently by as our liberties are eroded by biased code and unchecked power.
             </p>
         </section>
 
         <!-- 1. The Map: Accountability Tracker -->
         <section id="map-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">1. Lorem Ipsum Dolor Sit Amet</h3>
+            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">1. Accountability Tracker: Documented Incidents</h3>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Map Container -->
                 <div class="lg:col-span-2">
                     <div id="map-container"></div>
                 </div>
                 <!-- Sidebar/Key -->
-                <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-lg">
-                    <h4 class="text-2xl font-bold text-indigo-700 mb-4">Deployment Status Key (50 Incidents)</h4>
-                    <ul class="space-y-3">
+                <div class="lg:col-span-1 bg-gray-700 p-6 rounded-lg shadow-lg">
+                    <h4 class="text-2xl font-bold text-indigo-400 mb-4">Deployment Status Key (50 Incidents)</h4>
+                    <ul class="space-y-3 text-gray-200">
                         <li class="flex items-center">
                             <span class="inline-block w-4 h-4 rounded-full bg-red-600 mr-3"></span>
                             <span class="text-lg font-medium">Wrongful Arrest / Misidentification (15 Cases)</span>
@@ -125,8 +148,8 @@
                             <span class="text-lg font-medium">Mass Surveillance / Legal Challenge (20 Cases)</span>
                         </li>
                     </ul>
-                    <div class="mt-6 pt-4 border-t">
-                        <p class="text-sm text-gray-500">
+                    <div class="mt-6 pt-4 border-t border-gray-600">
+                        <p class="text-sm text-gray-400">
                             Markers in high-density areas are clustered and sized to show concentration. Click a cluster to zoom in.
                         </p>
                     </div>
@@ -134,81 +157,98 @@
             </div>
         </section>
 
-        <!-- 2. The Bias: Data and Disparity Dashboard - Placeholder Text -->
-        <section id="bias-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">2. Consectetur Adipiscing Elit</h3>
+        <!-- 2. The Bias: Data and Disparity Dashboard -->
+        <section id="bias-section" class="mb-8">
+            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">2. The Unequal Gaze: FRT's Disproportionate Impact</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-red-500">
-                    <p class="text-2xl font-bold text-red-600">Sed Ut Perspiciatis</p>
-                    <p class="text-lg font-medium mt-2">Unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
-                    <p class="text-sm text-gray-500 mt-1">Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg border-l-4 border-red-500">
+                    <p class="text-2xl font-bold text-red-400">The Terror of False Match</p>
+                    <p class="text-lg font-medium mt-2 text-gray-200">Imagine being torn from your family and jailed, all because a computer code decided you were guilty. FRT fails women, the elderly, and people of color at devastatingly higher rates.</p>
+                    <p class="text-sm text-gray-400 mt-1">This catastrophic unreliability is embedded in algorithms built on unrepresentative, racially skewed data sets.</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
-                    <p class="text-2xl font-bold text-purple-600">Nemo Enim Ipsam</p>
-                    <p class="text-lg font-medium mt-2">Quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem.</p>
-                    <p class="text-sm text-gray-500 mt-1">Tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam.</p>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
+                    <p class="text-2xl font-bold text-purple-400">The Cycle of Injustice</p>
+                    <p class="text-lg font-medium mt-2 text-gray-200">The systems are fed mugshot databases already saturated with images from over-policed Black and Brown communities. The result? A biased input drives a biased output, guaranteeing the cycle of systemic injustice continues.</p>
+                    <p class="text-sm text-gray-400 mt-1">FRT doesn't solve racial disparity; it industrializes it, using cold code to justify discriminatory policing practices.</p>
                 </div>
-                <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-yellow-500">
-                    <p class="text-2xl font-bold text-yellow-600">Quis Nostrum Exercitationem</p>
-                    <p class="text-lg font-medium mt-2">Ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure.</p>
-                    <p class="text-sm text-gray-500 mt-1">Reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.</p>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-lg border-l-4 border-yellow-500">
+                    <p class="text-2xl font-bold text-yellow-400">The Power of Blind Faith</p>
+                    <p class="text-lg font-medium mt-2 text-gray-200">Law enforcement, seduced by the illusion of AI infallibility, frequently ignores human bias and evidence, blindly trusting the algorithm. This cognitive failure turns a technical flaw into a life-altering tragedy.</p>
+                    <p class="text-sm text-gray-400 mt-1">For victims like Robert Williams, the computer's word alone was enough to strip them of 30 hours of freedom.</p>
                 </div>
             </div>
         </section>
 
-        <!-- 3. The Alternative: True Public Safety - REFACTORED T-CHART with LOREM IPSUM -->
+        <!-- 2.5. Deeper Analysis: Disparate Impact (New Section with Image Placeholder) -->
+        <section id="analysis-section" class="mb-16 bg-gray-700 p-8 rounded-lg shadow-lg">
+            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">2.5. Deeper Analysis: Disparate Impact</h3>
+            <div class="prose max-w-none text-gray-300">
+                <p class="text-xl font-semibold mb-4">The trauma is real. It is a terrifying realization that your identity, your freedom, and your family's sense of safety can be instantly obliterated by a cold, flawed line of code.</p>
+                <p>The injustice inflicted on Porcha Woodruff and Nijeer Parks—innocent people detained based solely on faulty algorithmic matches—underscores a terrifying truth: this technology is fundamentally incompatible with the principle of equal justice. We are being asked to accept a technology that is designed to fail certain demographics more often. Even if the software were hypothetically perfect, its real-world deployment in poor lighting or angled surveillance footage ensures higher error rates for people of color, perpetually reinforcing discriminatory policing.</p>
+                
+                <!-- Placeholder for Picture -->
+                <div class="image-placeholder">
+                    
+                </div>
+
+                <p>Furthermore, the mass deployment of this technology in marginalized neighborhoods turns public space into a constant, recordable police lineup. It normalizes surveillance, poisons trust between the community and law enforcement, and actively suppresses the democratic right to dissent. Imagine living every day knowing that criticizing power or attending a peaceful protest means risking permanent identification and potential government retaliation.</p>
+                <p>The only responsible path forward is not regulation, but prohibition—a refusal to deploy tools that are structurally hostile to the core values of an open and equitable society.</p>
+            </div>
+        </section>
+
+        <!-- 3. The Alternative: True Public Safety -->
         <section id="alternative-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">3. Duis Aute Irure Dolor</h3>
+            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">3. The False Dichotomy: Choosing Justice Over Control</h3>
             
-            <p class="text-xl font-medium text-gray-700 mb-6 text-center">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p class="text-xl font-medium text-gray-300 mb-6 text-center">We must reject the manufactured panic that claims we must sacrifice our deepest freedoms for an illusion of safety. The true choice is between oppressive control and genuine, community-driven public well-being.</p>
 
             <div class="overflow-x-auto shadow-xl rounded-lg">
-                <table class="comparison-table w-full bg-white">
+                <table class="comparison-table w-full">
                     <thead>
                         <tr>
-                            <th class="bg-red-100 text-red-800 w-1/2">Punitive Surveillance (Lorem Ipsum)</th>
-                            <th class="bg-green-100 text-green-800 w-1/2">Public Health Investment (Dolor Sit Amet)</th>
+                            <th class="bg-red-900 text-red-300 w-1/2">Punitive Surveillance (FRT & Mass Monitoring)</th>
+                            <th class="bg-green-900 text-green-300 w-1/2">Public Health Investment (Community Solutions)</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td class="border-l-4 border-red-400">
-                                <strong class="text-red-700">Flawed Accuracy:</strong> Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.
+                            <td class="border-l-4 border-red-400 text-gray-200">
+                                <strong class="text-red-400">Creates Fear & Inequity:</strong> Algorithms misidentify PoC at higher rates, weaponizing technology against marginalized communities.
                             </td>
-                            <td class="border-l-4 border-green-400">
-                                <strong class="text-green-700">Root Cause Reduction:</strong> Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border-l-4 border-red-400">
-                                <strong class="text-red-700">Constitutional Violation:</strong> Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia.
-                            </td>
-                            <td class="border-l-4 border-green-400">
-                                <strong class="text-green-700">Proven Efficacy:</strong> Consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est.
+                            <td class="border-l-4 border-green-400 text-gray-200">
+                                <strong class="text-green-400">Heals Root Causes:</strong> Addresses the true drivers of violence: poverty, lack of educational opportunity, and untreated mental health crises.
                             </td>
                         </tr>
                         <tr>
-                            <td class="border-l-4 border-red-400">
-                                <strong class="text-red-700">Chilling Effect:</strong> Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi.
+                            <td class="border-l-4 border-red-400 text-gray-200">
+                                <strong class="text-red-400">Destroys Constitutional Trust:</strong> Creates permanent, digital dossiers of every citizen's movement, rendering the Fourth Amendment meaningless.
                             </td>
-                            <td class="border-l-4 border-green-400">
-                                <strong class="text-green-700">Community Preference:</strong> Tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border-l-4 border-red-400">
-                                <strong class="text-red-700">Exacerbates Bias:</strong> Quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi.
-                            </td>
-                            <td class="border-l-4 border-green-400">
-                                <strong class="text-green-700">Restorative Justice:</strong> Consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil.
+                            <td class="border-l-4 border-green-400 text-gray-200">
+                                <strong class="text-green-400">Delivers Real Results:</strong> Evidence shows investments in healthcare and community programs reduce violence-related arrests by nearly 30%.
                             </td>
                         </tr>
                         <tr>
-                            <td class="border-l-4 border-red-400">
-                                <strong class="text-red-700">High Cost & Low Return:</strong> Molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.
+                            <td class="border-l-4 border-red-400 text-gray-200">
+                                <strong class="text-red-400">Silences Dissent:</strong> The fear of permanent identification forces self-censorship, poisoning the democratic function of free assembly and speech.
                             </td>
-                            <td class="border-l-4 border-green-400">
-                                <strong class="text-green-700">Sustainable Solutions:</strong> At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.
+                            <td class="border-l-4 border-green-400 text-gray-200">
+                                <strong class="text-green-400">Honors Victims' Wishes:</strong> Reflects the mandate of crime survivors, 60% of whom prefer prevention and rehabilitation over punitive methods.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border-l-4 border-red-400 text-gray-200">
+                                <strong class="text-red-400">Exhausts Resources:</strong> Wastes vast public funds on unreliable tech contracts instead of community well-being.
+                            </td>
+                            <td class="border-l-4 border-green-400 text-gray-200">
+                                <strong class="text-green-400">Builds Sustainable Futures:</strong> Creates durable community infrastructure, jobs, housing, and trust—the true foundations of lasting peace.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border-l-4 border-red-400 text-gray-200">
+                                <strong class="text-red-400">Enables Authoritarianism:</strong> Provides a ready-made architecture for oppressive monitoring and control, bypassing democratic oversight.
+                            </td>
+                            <td class="border-l-4 border-green-400 text-gray-200">
+                                <strong class="text-green-400">Upholds Democratic Values:</strong> Empowers local initiatives and restores the sense of shared safety without sacrificing civil liberties.
                             </td>
                         </tr>
                     </tbody>
@@ -216,57 +256,69 @@
             </div>
 
             <!-- Conclusion -->
-            <div class="mt-8 text-center bg-indigo-50 p-6 rounded-lg shadow-inner">
-                <p class="text-2xl font-extrabold text-indigo-700">
+            <div class="mt-8 text-center bg-gray-700 p-6 rounded-lg shadow-inner">
+                <p class="text-2xl font-extrabold text-indigo-400">
                     Public Health Investment is the Better Choice
                 </p>
-                <p class="text-lg text-gray-700 mt-2">
-                    Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.
+                <p class="text-lg text-gray-300 mt-2">
+                    The evidence is an undeniable cry for justice: preventative and community-based solutions are profoundly more effective, humane, and compatible with a free society. To choose costly, biased surveillance over investments in public health is a moral and policy failure that trades human dignity for oppressive control.
                 </p>
             </div>
         </section>
 
-        <!-- 4. In-Depth Report: The Case for a Ban - Placeholder Text -->
-        <section id="report-section" class="mb-16 bg-white p-8 rounded-lg shadow-lg">
-            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">4. Excepteur Sint Occaecat</h3>
-            <div class="prose max-w-none text-gray-700">
-                <p class="text-xl font-semibold mb-4">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
-                <p>Curabitur pretium, libero ac semper aliquet, augue elit interdum arcu, a tincidunt leo ligula vel elit. Quisque dictum arcu sit amet purus lobortis, ac ullamcorper dui euismod. Maecenas a dolor a felis tempor tristique. Sed non libero in odio aliquet egestas. Pellentesque a sem sed dolor tristique commodo. Sed vel dui ac nunc dictum volutpat. Suspendisse potenti. Nam non sem eget felis tempor tincidunt.</p>
-                <h4 class="text-2xl font-semibold mt-6 mb-3">5. Cupidatat Non Proident</h4>
-                <p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus eu sapien ut ex commodo laoreet. Integer scelerisque nulla eu odio pharetra, nec luctus mi lobortis. Ut non risus eget purus tempor euismod.</p>
-                <h4 class="text-2xl font-semibold mt-6 mb-3">6. Sunt In Culpa Qui Officia</h4>
-                <p>Proin posuere arcu ac massa iaculis, eu tristique mi finibus. Donec ac libero eu odio aliquet egestas. Nullam ac tortor vitae purus egestas egestas. Maecenas sed justo vitae nisl dictum efficitur at vel odio.</p>
-                <p>Aliquam erat volutpat. Fusce id nisl vel ex tristique pharetra. Ut eget diam vel risus mattis cursus. Proin eu elit vitae tortor semper eleifend. Nunc euismod, libero eu feugiat iaculis, libero dolor dapibus justo, non consectetur tortor tortor a elit.</p>
+        <!-- 4. In-Depth Report: The Case for a Ban -->
+        <section id="report-section" class="mb-16 bg-gray-700 p-8 rounded-lg shadow-lg">
+            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">4. The Incompatibility of FRT with a Liberal Democracy</h3>
+            <div class="prose max-w-none text-gray-300">
+                <p class="text-xl font-semibold mb-4">The constitutional arguments against biometric surveillance center on the terrifying violation of our Fourth and First Amendment rights.</p>
+                <p>The Fourth Amendment was designed to secure "the privacies of life" against "arbitrary power." FRT turns random public sightings into a continuous, comprehensive digital chronicle of your life—tracking every doctor's visit, every political rally, every association. This is the very mass tracking the Supreme Court declared unconstitutional in *Carpenter v. United States*. We face a future where the government maintains a searchable, permanent record of every person, guilty or innocent, destroying the anonymity essential to liberty. </p>
+                
+                <!-- Placeholder for Picture -->
+                <div class="image-placeholder">
+                    
+                </div>
+
+                <p>Beyond privacy, the threat of permanent identification instills a profound chilling effect. Imagine hesitating to attend a protest or speak against power because you know the state can log your presence instantly. This fear actively suppresses the democratic rights to criticize the government and assemble freely, proving that this technology is not just flawed—it is **structurally hostile** to the core values of an open society.</p>
+                <h4 class="text-2xl font-semibold mt-6 mb-3">The Inescapable Erosion of Freedom</h4>
+                <p>If we allow these tools to become ubiquitous, we normalize the state's capacity for total surveillance. The technology itself is the problem; regulation only serves to legitimize an inherently tyrannical capability. Only a complete ban can protect the promise of American liberty.</p>
+                <h4 class="text-2xl font-semibold mt-6 mb-3">The Need for Total Prohibition</h4>
+                <p>A society that is constantly monitored is a society that is afraid. We must demand lawmakers protect our fundamental right to anonymity in public, ensuring that future generations do not inherit a world where freedom is conditional upon silence and invisibility.</p>
             </div>
         </section>
 
-        <!-- 5. Legislation & Policy Updates - Placeholder Text -->
+        <!-- 5. Legislation & Policy Updates -->
         <section id="policy-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">5. Deserunt Mollit Anim Id Est Laborum</h3>
-            <div class="bg-white p-8 rounded-lg shadow-lg">
-                <p class="text-xl font-semibold mb-4 text-gray-700">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.</p>
-                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
-                <ul class="list-disc list-inside ml-4 mt-4 text-gray-700 space-y-2">
-                    <li>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</li>
-                    <li>Sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</li>
-                    <li>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur.</li>
+            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">5. The Global Resistance to Biometric Surveillance</h3>
+            <div class="bg-gray-700 p-8 rounded-lg shadow-lg">
+                <p class="text-xl font-semibold mb-4 text-gray-300">The fight for digital liberty is being waged in courtrooms and city halls across the nation, pushing back against the surveillance tide.</p>
+                <p class="text-gray-300">Landmark victories, such as Chicago's BIPA lawsuit against Clearview AI, which resulted in a nationwide settlement limiting sales to private entities, prove that strong state privacy laws work. Cities like San Francisco, Boston, and Minneapolis have already taken the courageous step of enacting full bans on government use of FRT, recognizing its discriminatory engine and its constitutional threat. Yet, new threats emerge daily, from systems like Flock Safety (ALPR/License Plate Readers) to acoustic surveillance. The only acceptable end goal is a comprehensive, nationwide prohibition that guarantees the right to be unseen.</p>
+                
+                <!-- Placeholder for Picture -->
+                <div class="image-placeholder">
+                    
+                </div>
+
+                <ul class="list-disc list-inside ml-4 mt-4 text-gray-300 space-y-2">
+                    <li>**BIPA Laws:** Advocate for the passage of Biometric Information Privacy Acts in all 50 states.</li>
+                    <li>**Defund Surveillance:** Demand that local councils reallocate funds from surveillance contracts to community services.</li>
+                    <li>**Transparency:** Challenge police departments to disclose every instance of FRT and ALPR usage.</li>
                 </ul>
             </div>
         </section>
 
-        <!-- 6. Take Action Section - Placeholder Text -->
-        <section id="action-section" class="text-center py-12 bg-white rounded-lg shadow-xl">
-            <h3 class="text-4xl font-bold text-indigo-700 mb-4">6. Itaque earum rerum hic tenetur a sapiente delectus.</h3>
-            <p class="text-xl text-gray-700 mb-8">Ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.</p>
-            <a href="#" class="inline-block px-10 py-4 bg-red-600 text-white text-xl font-semibold rounded-lg hover:bg-red-700 transition duration-300 transform hover:scale-105 shadow-md">
-                Ut Enim Ad Minima Veniam
+        <!-- 6. Take Action Section -->
+        <section id="action-section" class="text-center py-12 bg-gray-700 rounded-lg shadow-xl">
+            <h3 class="text-4xl font-bold text-red-400 mb-4">6. END THE FEAR: Join the Fight to Ban the Scan</h3>
+            <p class="text-xl text-gray-300 mb-8">This is a fight for the soul of our democracy. Every documented incident of wrongful arrest—every life upended by flawed tech—is a desperate plea for us to act. We must reject the false choice between safety and freedom and demand justice now.</p>
+            <a href="#" class="inline-block px-10 py-4 bg-red-600 text-white text-xl font-semibold rounded-lg hover:bg-red-700 transition duration-300 transform hover:scale-105 shadow-2xl">
+                DEMAND A BAN: Contact Your Legislator Today
             </a>
         </section>
 
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white mt-12">
+    <footer class="bg-gray-900 text-white mt-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
             <p>&copy; 2025 The Unseen Record. Built on the principles of privacy, equality, and justice.</p>
         </div>
@@ -385,9 +437,12 @@
 
             // Function to create a custom icon with a color
             const getCustomIcon = (color) => {
+                // Since the body is permanently dark, the border is set to match the body background for contrast
+                const borderColor = '#1f2937'; 
+                
                 return L.divIcon({
                     className: 'custom-div-icon',
-                    html: `<div style="background-color: ${color}; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
+                    html: `<div style="background-color: ${color}; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 3px solid ${borderColor}; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
                     iconSize: [24, 24],
                     iconAnchor: [12, 24] // Centers the pin bottom
                 });
@@ -400,7 +455,7 @@
                 const icon = getCustomIcon(color);
 
                 const popupContent = `
-                    <div class="font-sans">
+                    <div class="font-sans text-gray-900">
                         <h4 class="text-lg font-bold mb-1">${data.city}</h4>
                         <p class="text-sm"><strong>Type:</strong> ${data.status.split('(')[0]}</p>
                         <p class="text-sm"><strong>System/Vendor:</strong> ${data.vendor}</p>
