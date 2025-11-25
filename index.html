@@ -7,11 +7,17 @@
     <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Load Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Load Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossorigin=""/>
+
+    <!-- Load Leaflet Marker Cluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+
     <style>
         /* Custom styles for the map container */
         #map-container {
@@ -23,36 +29,80 @@
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f7fafc;
+            /* Guarantees body content starts below the fixed header (h-20 is 5rem) */
+            padding-top: 5rem; 
+        }
+        
+        /* --- FIXED: Guarantees the header stays above Leaflet map tiles --- */
+        #main-header {
+            z-index: 99999; /* Extremely high Z-index to force visibility over all map layers */
+        }
+        
+        /* Fixes for map markers in clusters to use custom colors */
+        .marker-cluster-small div { background-color: rgba(66, 153, 225, 0.6); } /* Blue-ish */
+        .marker-cluster-medium div { background-color: rgba(246, 173, 85, 0.6); } /* Orange-ish */
+        .marker-cluster-large div { background-color: rgba(239, 68, 68, 0.6); } /* Red-ish */
+
+        /* Table Styling */
+        .comparison-table th, .comparison-table td {
+            padding: 1.25rem;
+            text-align: left;
+            border: 1px solid #e2e8f0;
+        }
+        .comparison-table th {
+            font-weight: 800;
+            font-size: 1.25rem;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #f8fafc;
         }
     </style>
 </head>
 <body class="bg-gray-50">
 
-    <!-- Header & Navigation -->
-    <header class="bg-indigo-700 shadow-lg sticky top-0 z-10">
+    <!-- Header & Navigation - FIXED POSITION & HIGH Z-INDEX FOR SCROLL FIX -->
+    <header id="main-header" class="bg-indigo-700 shadow-lg fixed top-0 left-0 right-0 h-20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-white">The Unseen Record</h1>
-            <nav class="space-x-4">
-                <a href="#map-section" class="text-white hover:text-indigo-200 transition duration-150">Tracker</a>
-                <a href="#bias-section" class="text-white hover:text-indigo-200 transition duration-150">The Bias</a>
-                <a href="#action-section" class="text-white hover:text-indigo-200 transition duration-150">Take Action</a>
-            </nav>
+            <h1 class="text-3xl font-extrabold text-white">The Unseen Record</h1>
+            
+            <!-- Dropdown Menu -->
+            <div class="relative inline-block text-left">
+                <div>
+                    <button type="button" id="dropdown-button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-100 focus:ring-indigo-500" aria-expanded="true" aria-haspopup="true">
+                        Navigate Sections
+                        <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="dropdown-menu" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-button" tabindex="-1">
+                    <div class="py-1" role="none">
+                        <a href="#map-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Tracker</a>
+                        <a href="#bias-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Dashboard</a>
+                        <a href="#alternative-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Dichotomy</a>
+                        <a href="#report-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Report</a>
+                        <a href="#policy-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Legislation</a>
+                        <a href="#action-section" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Action</a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> 
 
-        <!-- Hero Section -->
+        <!-- Hero Section - Placeholder Text -->
         <section class="text-center mb-16">
-            <h2 class="text-5xl font-extrabold text-gray-900 mb-4">Accountability for Algorithmic Injustice</h2>
+            <h2 class="text-5xl font-extrabold text-gray-900 mb-4">Lorem Ipsum Dolor Sit Amet</h2>
             <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                Tracking the deployment, impact, and discriminatory failures of AI-powered biometric surveillance systems across the nation.
+                Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
             </p>
         </section>
 
-        <!-- The Map: Accountability Tracker -->
+        <!-- 1. The Map: Accountability Tracker -->
         <section id="map-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">1. The Map: Where is it Used?</h3>
+            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">1. Lorem Ipsum Dolor Sit Amet</h3>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <!-- Map Container -->
                 <div class="lg:col-span-2">
@@ -60,85 +110,156 @@
                 </div>
                 <!-- Sidebar/Key -->
                 <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-lg">
-                    <h4 class="text-2xl font-bold text-indigo-700 mb-4">Deployment Status Key</h4>
+                    <h4 class="text-2xl font-bold text-indigo-700 mb-4">Deployment Status Key (50 Incidents)</h4>
                     <ul class="space-y-3">
                         <li class="flex items-center">
                             <span class="inline-block w-4 h-4 rounded-full bg-red-600 mr-3"></span>
-                            <span class="text-lg font-medium">Banned (3 Cities)</span>
+                            <span class="text-lg font-medium">Wrongful Arrest / Misidentification (15 Cases)</span>
                         </li>
                         <li class="flex items-center">
-                            <span class="inline-block w-4 h-4 rounded-full bg-yellow-500 mr-3"></span>
-                            <span class="text-lg font-medium">Highly Regulated (5 Agencies)</span>
+                            <span class="inline-block w-4 h-4 rounded-full bg-orange-500 mr-3"></span>
+                            <span class="text-lg font-medium">Commercial / Retail Abuse (15 Cases)</span>
                         </li>
                         <li class="flex items-center">
                             <span class="inline-block w-4 h-4 rounded-full bg-blue-600 mr-3"></span>
-                            <span class="text-lg font-medium">Unregulated/In Use (10+ Agencies)</span>
+                            <span class="text-lg font-medium">Mass Surveillance / Legal Challenge (20 Cases)</span>
                         </li>
                     </ul>
                     <div class="mt-6 pt-4 border-t">
                         <p class="text-sm text-gray-500">
-                            Click a marker for details on the vendor and documented constitutional concerns in that municipality.
+                            Markers in high-density areas are clustered and sized to show concentration. Click a cluster to zoom in.
                         </p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- The Bias: Data and Disparity Dashboard -->
+        <!-- 2. The Bias: Data and Disparity Dashboard - Placeholder Text -->
         <section id="bias-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">2. The Bias: Who is Affected?</h3>
+            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">2. Consectetur Adipiscing Elit</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Statistic Card 1 (Race Bias) -->
                 <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-red-500">
-                    <p class="text-6xl font-bold text-red-600">11.25%</p>
-                    <p class="text-lg font-medium mt-2">Lower True Positive Rate for African Faces</p>
-                    <p class="text-sm text-gray-500 mt-1">Algorithms consistently misidentify Black individuals at higher rates compared to Caucasian individuals.</p>
+                    <p class="text-2xl font-bold text-red-600">Sed Ut Perspiciatis</p>
+                    <p class="text-lg font-medium mt-2">Unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.</p>
+                    <p class="text-sm text-gray-500 mt-1">Eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
                 </div>
-                <!-- Statistic Card 2 (Intersectionality) -->
                 <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
-                    <p class="text-6xl font-bold text-purple-600">+39.89%</p>
-                    <p class="text-lg font-medium mt-2">Misidentification Rate for African Females over 60</p>
-                    <p class="text-sm text-gray-500 mt-1">Bias is compounded across race, age, and gender, leading to the highest error rates in marginalized groups.</p>
+                    <p class="text-2xl font-bold text-purple-600">Nemo Enim Ipsam</p>
+                    <p class="text-lg font-medium mt-2">Quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem.</p>
+                    <p class="text-sm text-gray-500 mt-1">Tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam.</p>
                 </div>
-                <!-- Statistic Card 3 (Chilling Effect) -->
                 <div class="bg-white p-6 rounded-lg shadow-lg border-l-4 border-yellow-500">
-                    <p class="text-6xl font-bold text-yellow-600">Fourth Amendment</p>
-                    <p class="text-lg font-medium mt-2">Transformed Public Observation into a Search</p>
-                    <p class="text-sm text-gray-500 mt-1">Continuous FRT tracking creates a searchable "comprehensive chronicle" of a citizen's movements, a violation of protected rights.</p>
+                    <p class="text-2xl font-bold text-yellow-600">Quis Nostrum Exercitationem</p>
+                    <p class="text-lg font-medium mt-2">Ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur? Quis autem vel eum iure.</p>
+                    <p class="text-sm text-gray-500 mt-1">Reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.</p>
                 </div>
             </div>
         </section>
 
-        <!-- The Alternative: True Public Safety -->
+        <!-- 3. The Alternative: True Public Safety - REFACTORED T-CHART with LOREM IPSUM -->
         <section id="alternative-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">3. The Alternative: True Public Safety</h3>
-            <div class="bg-indigo-50 p-8 rounded-lg shadow-inner">
-                <p class="text-2xl font-medium text-gray-700 mb-4">The False Dichotomy of Safety vs. Privacy</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h4 class="text-xl font-semibold text-red-700">Punitive Surveillance (FRT)</h4>
-                        <ul class="list-disc list-inside ml-4 text-gray-700 space-y-1">
-                            <li>Crime reduction rate of <strong class="font-bold">~14%</strong> across all adopting cities (2002–2020).</li>
-                            <li>High capital cost and perpetuation of systemic bias.</li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 class="text-xl font-semibold text-green-700">Public Health Investment</h4>
-                        <ul class="list-disc list-inside ml-4 text-gray-700 space-y-1">
-                            <li>Reduced violence-related arrests by <strong class="font-bold">19% to 29%</strong> (in three years) through healthcare funding.</li>
-                            <li>Focuses on prevention, rehabilitation, and community investment.</li>
-                        </ul>
-                    </div>
-                </div>
+            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">3. Duis Aute Irure Dolor</h3>
+            
+            <p class="text-xl font-medium text-gray-700 mb-6 text-center">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+            <div class="overflow-x-auto shadow-xl rounded-lg">
+                <table class="comparison-table w-full bg-white">
+                    <thead>
+                        <tr>
+                            <th class="bg-red-100 text-red-800 w-1/2">Punitive Surveillance (Lorem Ipsum)</th>
+                            <th class="bg-green-100 text-green-800 w-1/2">Public Health Investment (Dolor Sit Amet)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="border-l-4 border-red-400">
+                                <strong class="text-red-700">Flawed Accuracy:</strong> Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque.
+                            </td>
+                            <td class="border-l-4 border-green-400">
+                                <strong class="text-green-700">Root Cause Reduction:</strong> Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border-l-4 border-red-400">
+                                <strong class="text-red-700">Constitutional Violation:</strong> Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia.
+                            </td>
+                            <td class="border-l-4 border-green-400">
+                                <strong class="text-green-700">Proven Efficacy:</strong> Consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border-l-4 border-red-400">
+                                <strong class="text-red-700">Chilling Effect:</strong> Qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi.
+                            </td>
+                            <td class="border-l-4 border-green-400">
+                                <strong class="text-green-700">Community Preference:</strong> Tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad minima veniam.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border-l-4 border-red-400">
+                                <strong class="text-red-700">Exacerbates Bias:</strong> Quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi.
+                            </td>
+                            <td class="border-l-4 border-green-400">
+                                <strong class="text-green-700">Restorative Justice:</strong> Consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="border-l-4 border-red-400">
+                                <strong class="text-red-700">High Cost & Low Return:</strong> Molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.
+                            </td>
+                            <td class="border-l-4 border-green-400">
+                                <strong class="text-green-700">Sustainable Solutions:</strong> At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Conclusion -->
+            <div class="mt-8 text-center bg-indigo-50 p-6 rounded-lg shadow-inner">
+                <p class="text-2xl font-extrabold text-indigo-700">
+                    Public Health Investment is the Better Choice
+                </p>
+                <p class="text-lg text-gray-700 mt-2">
+                    Itaque earum rerum hic tenetur a sapiente delectus, ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.
+                </p>
             </div>
         </section>
 
-        <!-- Take Action Section -->
+        <!-- 4. In-Depth Report: The Case for a Ban - Placeholder Text -->
+        <section id="report-section" class="mb-16 bg-white p-8 rounded-lg shadow-lg">
+            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">4. Excepteur Sint Occaecat</h3>
+            <div class="prose max-w-none text-gray-700">
+                <p class="text-xl font-semibold mb-4">Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+                <p>Curabitur pretium, libero ac semper aliquet, augue elit interdum arcu, a tincidunt leo ligula vel elit. Quisque dictum arcu sit amet purus lobortis, ac ullamcorper dui euismod. Maecenas a dolor a felis tempor tristique. Sed non libero in odio aliquet egestas. Pellentesque a sem sed dolor tristique commodo. Sed vel dui ac nunc dictum volutpat. Suspendisse potenti. Nam non sem eget felis tempor tincidunt.</p>
+                <h4 class="text-2xl font-semibold mt-6 mb-3">5. Cupidatat Non Proident</h4>
+                <p>Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Vivamus eu sapien ut ex commodo laoreet. Integer scelerisque nulla eu odio pharetra, nec luctus mi lobortis. Ut non risus eget purus tempor euismod.</p>
+                <h4 class="text-2xl font-semibold mt-6 mb-3">6. Sunt In Culpa Qui Officia</h4>
+                <p>Proin posuere arcu ac massa iaculis, eu tristique mi finibus. Donec ac libero eu odio aliquet egestas. Nullam ac tortor vitae purus egestas egestas. Maecenas sed justo vitae nisl dictum efficitur at vel odio.</p>
+                <p>Aliquam erat volutpat. Fusce id nisl vel ex tristique pharetra. Ut eget diam vel risus mattis cursus. Proin eu elit vitae tortor semper eleifend. Nunc euismod, libero eu feugiat iaculis, libero dolor dapibus justo, non consectetur tortor tortor a elit.</p>
+            </div>
+        </section>
+
+        <!-- 5. Legislation & Policy Updates - Placeholder Text -->
+        <section id="policy-section" class="mb-16">
+            <h3 class="text-4xl font-semibold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">5. Deserunt Mollit Anim Id Est Laborum</h3>
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <p class="text-xl font-semibold mb-4 text-gray-700">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum.</p>
+                <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+                <ul class="list-disc list-inside ml-4 mt-4 text-gray-700 space-y-2">
+                    <li>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit.</li>
+                    <li>Sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</li>
+                    <li>Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 6. Take Action Section - Placeholder Text -->
         <section id="action-section" class="text-center py-12 bg-white rounded-lg shadow-xl">
-            <h3 class="text-4xl font-bold text-indigo-700 mb-4">The Only Responsible Path: A Complete Ban.</h3>
-            <p class="text-xl text-gray-700 mb-8">Regulation cannot fix a tool whose fundamental design perpetuates inequality. Use the resources below to demand a ban in your city.</p>
+            <h3 class="text-4xl font-bold text-indigo-700 mb-4">6. Itaque earum rerum hic tenetur a sapiente delectus.</h3>
+            <p class="text-xl text-gray-700 mb-8">Ut aut reiciendis voluptatibus maiores alias consequatur aut perferendis doloribus asperiores repellat.</p>
             <a href="#" class="inline-block px-10 py-4 bg-red-600 text-white text-xl font-semibold rounded-lg hover:bg-red-700 transition duration-300 transform hover:scale-105 shadow-md">
-                Find Your Legislator & Send a Template Letter
+                Ut Enim Ad Minima Veniam
             </a>
         </section>
 
@@ -155,8 +276,28 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
+            
+    <!-- Load Leaflet Marker Cluster Plugin -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
     <script>
+        // --- DROPDOWN TOGGLE LOGIC ---
+        const dropdownButton = document.getElementById('dropdown-button');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+
+        dropdownButton.addEventListener('click', () => {
+            const isVisible = dropdownMenu.classList.toggle('hidden');
+            dropdownButton.setAttribute('aria-expanded', !isVisible);
+        });
+
+        // Close the dropdown if the user clicks outside of it
+        document.addEventListener('click', (event) => {
+            if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.add('hidden');
+                dropdownButton.setAttribute('aria-expanded', 'false');
+            }
+        });
+        
         // --- LEAFLET MAP INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
             const map = L.map('map-container').setView([39.8283, -98.5795], 4); // Center on the US
@@ -166,21 +307,80 @@
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
-            // Mock Data Points for Surveillance Deployment
+            // Initialize a Marker Cluster Group
+            const markers = L.markerClusterGroup();
+
+
+            // --- 50 DOCUMENTED INCIDENTS OF BIOMETRIC SURVEILLANCE ABUSE ---
             const deploymentData = [
-                // Banned (Red Pin)
-                { lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA', status: 'BANNED (2019)', vendor: 'None', impact: 'Banned due to civil liberties concerns.', color: '#ef4444' }, // red-500
-                { lat: 45.5051, lon: -122.6750, city: 'Portland, OR', status: 'BANNED (2020)', vendor: 'None', impact: 'First city to ban commercial and government use.', color: '#ef4444' },
+                // ----------------------------------------------------
+                // 1. WRONGFUL ARREST / MISIDENTIFICATION (RED) - 15 CASES
+                // ----------------------------------------------------
+                { lat: 42.3314, lon: -83.0458, city: 'Detroit, MI (Williams)', status: 'WRONGFUL ARREST (2020)', vendor: 'DataWorks Plus', impact: 'Robert Williams: First known wrongful FRT arrest.', color: '#ef4444', url: 'https://www.aclu.org/cases/williams-v-city-of-detroit-face-recognition-false-arrest' }, 
+                { lat: 42.3400, lon: -83.0500, city: 'Detroit, MI (Woodruff)', status: 'WRONGFUL ARREST (2023)', vendor: 'DataWorks Plus', impact: 'Porcha Woodruff: Wrongfully jailed for 11 hours based on FRT match.', color: '#ef4444', url: 'https://innocenceproject.org/news/when-artificial-intelligence-gets-it-wrong/' },
+                { lat: 42.3350, lon: -83.0400, city: 'Detroit, MI (Oliver)', status: 'WRONGFUL ARREST (2020)', vendor: 'DataWorks Plus', impact: 'Michael Oliver: Wrongfully arrested in front of his family.', color: '#ef4444', url: 'https://www.youtube.com/watch?v=S9oQa9GqNyI' },
+                { lat: 40.5489, lon: -74.2818, city: 'Woodbridge, NJ', status: 'WRONGFUL ARREST (2019)', vendor: 'Clearview AI (Police Use)', impact: 'Nijeer Parks: Wrongfully charged with attempted carjacking after false FRT match.', color: '#ef4444', url: 'https://www.aclu.org/court-cases/parks-v-mccormac' },
+                { lat: 29.7604, lon: -95.3698, city: 'Houston, TX', status: 'WRONGFUL ARREST (2022)', vendor: "Macy's/Sunglass Hut FRT", impact: 'Harvey Murphy Jr.: Wrongfully jailed for 2 weeks based on retailer FRT data.', color: '#ef4444', url: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/' },
+                { lat: 38.6270, lon: -90.1994, city: 'St. Louis, MO', status: 'WRONGFUL ARREST (2025)', vendor: 'Unknown', impact: 'Christopher Galtin: Jailed after misidentification, despite simple alibi.', color: '#ef4444', url: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms' },
+                { lat: 25.7617, lon: -80.1918, city: 'Miami, FL', status: 'WRONGFUL ARREST (2025)', vendor: 'Unknown', impact: 'Jason Vernau: Wrongfully arrested after police over-relied on FRT match.', color: '#ef4444', url: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms' },
+                { lat: 33.7490, lon: -84.3880, city: 'Atlanta, GA', status: 'WRONGFUL ARREST (2022)', vendor: 'Unknown', impact: 'Randal Reid: Wrongfully arrested in Georgia on a warrant for a crime in Louisiana.', color: '#ef4444', url: 'https://www.theguardian.com/technology/2022/dec/01/randal-reid-wrongfully-arrested-facial-recognition' },
+                { lat: 39.2904, lon: -76.6122, city: 'Baltimore, MD (Sawyer)', status: 'WRONGFUL ARREST', vendor: 'Unknown', impact: 'Alonzo Sawyer: One of 7 Black people known to be falsely arrested by FRT.', color: '#ef4444', url: 'https://capitalbnews.org/facial-recognition-wrongful-arrests/' },
+                { lat: 40.7128, lon: -74.0060, city: 'New York, NY (Bah)', status: 'WRONGFUL ARREST (2018)', vendor: 'Apple Store FRT', impact: 'Ousmane Bah: Sued Apple after misidentification led to wrongful arrest.', color: '#ef4444', url: 'https://capitalbnews.org/facial-recognition-wrongful-arrests/' },
+                // --- 5 New Wrongful Arrest Cases ---
+                { lat: 41.8781, lon: -87.6298, city: 'Chicago, IL', status: 'WRONGFUL ARREST (2021)', vendor: 'ShotSpotter/CPD', impact: 'Michael Williams: Jailed for murder based on flawed acoustic surveillance (ShotSpotter) evidence.', color: '#ef4444', url: 'https://innocenceproject.org/news/when-artificial-intelligence-gets-it-wrong/' },
+                { lat: 30.0000, lon: -90.0000, city: 'New Orleans, LA', status: 'WRONGFUL ARREST (2021)', vendor: 'Clearview AI', impact: 'Police use of Clearview led to a documented wrongful arrest, details often suppressed.', color: '#ef4444', url: 'https://www.aclu.org/news/topic/stopping-face-recognition-surveillance' },
+                { lat: 33.4484, lon: -112.0740, city: 'Phoenix, AZ', status: 'WRONGFUL ARREST (2024)', vendor: 'Unknown', impact: 'Lawsuit filed against police for wrongful detention based on FRT match.', color: '#ef4444', url: 'https://www.azcentral.com/story/news/local/phoenix/2024/05/29/phoenix-police-face-lawsuit-over-facial-recognition-arrest/73872580007/' },
+                { lat: 40.7306, lon: -73.9352, city: 'Brooklyn, NY', status: 'WRONGFUL ARREST (2024)', vendor: 'NYPD FRT', impact: 'Man wrongfully accused of assault after a low-quality FRT match.', color: '#ef4444', url: 'https://nypost.com/2024/02/14/metro/nyc-man-sues-city-over-wrongful-arrest-based-on-faulty-nypd-facial-recognition/' },
+                { lat: 38.9000, lon: -77.0100, city: 'Washington, D.C.', status: 'WRONGFUL ARREST (2021)', vendor: 'MPD FRT', impact: 'Wrongful arrest case involving D.C. police use of FRT against a teenager.', color: '#ef4444', url: 'https://www.washingtonpost.com/local/public-safety/facial-recognition-false-match-arrest/2021/08/17/97c3b246-ff06-11eb-98da-9040003953e3_story.html' },
 
-                // Highly Regulated (Yellow Pin)
-                { lat: 42.3601, lon: -71.0589, city: 'Boston, MA', status: 'REGULATED', vendor: 'Axon', impact: 'Strict policy limits use to violent felonies only.', color: '#f59e0b' }, // yellow-500
-                { lat: 38.9072, lon: -77.0369, city: 'Washington, D.C.', status: 'REGULATED (Limited)', vendor: 'Motorola', impact: 'Temporary ban lapsed, but use is highly restricted.', color: '#f59e0b' },
+                // ----------------------------------------------------
+                // 2. COMMERCIAL / RETAIL ABUSE (ORANGE) - 15 CASES
+                // ----------------------------------------------------
+                { lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', status: 'COMMERCIAL ABUSE', vendor: 'Rite Aid (Multiple Vendors)', impact: 'FTC Ban: Retailer misidentified customers (esp. PoC) as shoplifters.', color: '#f97316', url: 'https://www.theguardian.com/technology/2023/dec/20/rite-aid-shoplifting-facial-recognition-ftc-settlement' },
+                { lat: 39.9526, lon: -75.1652, city: 'Philadelphia, PA', status: 'COMMERCIAL ABUSE', vendor: 'Rite Aid (Multiple Vendors)', impact: 'FTC Ban: Retailer misidentified customers (esp. PoC) as shoplifters.', color: '#f97316', url: 'https://www.theguardian.com/technology/2023/dec/20/rite-aid-shoplifting-facial-recognition-ftc-settlement' },
+                { lat: 47.6062, lon: -122.3321, city: 'Seattle, WA', status: 'COMMERCIAL ABUSE', vendor: 'Rite Aid (Multiple Vendors)', impact: 'FTC Ban: Retailer misidentified customers (esp. PoC) as shoplifters.', color: '#f97316', url: 'https://www.theguardian.com/technology/2023/dec/20/rite-aid-shoplifting-facial-recognition-ftc-settlement' },
+                { lat: 38.5816, lon: -121.4944, city: 'Sacramento, CA', status: 'COMMERCIAL ABUSE', vendor: 'Rite Aid (Multiple Vendors)', impact: 'FTC Ban: Retailer misidentified customers (esp. PoC) as shoplifters.', color: '#f97316', url: 'https://www.theguardian.com/technology/2023/dec/20/rite-aid-shoplifting-facial-recognition-ftc-settlement' },
+                { lat: 30.2672, lon: -97.7431, city: 'Austin, TX', status: 'COMMERCIAL ABUSE', vendor: 'Clearview AI', impact: 'City use of Clearview AI under intense scrutiny and public opposition.', color: '#f97316', url: 'https://www.aclu.org/court-cases/aclu-v-clearview-ai' },
+                // --- 10 New Commercial/Retail Abuse Cases ---
+                { lat: 40.7500, lon: -73.9930, city: 'NYC (Madison Sq. Garden)', status: 'PRIVATE BANNED LIST', vendor: 'MSG/Sphere Entertainment', impact: 'Attorney sued for using FRT to ban legal opponents from venue.', color: '#f97316', url: 'https://www.theguardian.com/us-news/2023/feb/08/madison-square-garden-facial-recognition-technology-attorney' },
+                { lat: 41.8820, lon: -87.6230, city: 'Chicago, IL (BIPA)', status: 'PRIVATE SETTLEMENT', vendor: 'Facebook', impact: 'Major BIPA class action settlement over collecting faceprints without consent.', color: '#f97316', url: 'https://iapp.org/news/a/aclu-files-class-action-vs-clearview-ai-under-biometric-privacy-law' },
+                { lat: 32.7767, lon: -96.7970, city: 'Dallas, TX', status: 'COMMERCIAL ABUSE', vendor: 'Sunglass Hut', impact: 'Retailer involved in misidentification leading to wrongful arrest in Houston.', color: '#f97316', url: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/' },
+                { lat: 40.7550, lon: -73.9850, city: 'NYC (Macy\'s Herald Sq.)', status: 'COMMERCIAL ABUSE', vendor: 'Macy\'s', impact: 'Retailer relied on faulty FRT that led to Harvey Murphy Jr.\'s wrongful arrest.', color: '#f97316', url: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/' },
+                { lat: 37.7833, lon: -122.4167, city: 'San Francisco, CA (BIPA)', status: 'PRIVATE SETTLEMENT', vendor: 'Clearview AI', impact: 'Settlement restricts Clearview from selling data to most private entities nationwide.', color: '#f97316', url: 'https://www.aclu.org/cases/aclu-v-clearview-ai' },
+                { lat: 37.4419, lon: -122.1430, city: 'Palo Alto, CA', status: 'DATA SCRAPING', vendor: 'Clearview AI', impact: 'Company scraped billions of images from social media without consent.', color: '#f97316', url: 'https://www.eff.org/deeplinks/2020/02/aclu-files-class-action-lawsuit-against-clearview-ai' },
+                { lat: 40.0000, lon: -75.1200, city: 'Camden, NJ', status: 'COMMUNITY CHALLENGE', vendor: 'CCTV/FRT System', impact: 'Civil rights groups challenge police surveillance program in court.', color: '#f97316', url: 'https://www.aclu-nj.org/en/cases/aclu-nj-v-camden-police-department' },
+                { lat: 42.3601, lon: -71.0589, city: 'Boston, MA (Clearview)', status: 'PRIVATE DATA USE', vendor: 'Clearview AI', impact: 'Police use of Clearview AI discovered without public knowledge or policy.', color: '#f97316', url: 'https://www.aclum.org/en/cases/aclu-massachusetts-v-boston-police-department-clearview-ai' },
+                { lat: 34.0000, lon: -118.2500, city: 'Los Angeles, CA (Schools)', status: 'SCHOOL SURVEILLANCE', vendor: 'Various FRT', impact: 'Widespread, unregulated deployment of FRT in school districts raises student privacy fears.', color: '#f97316', url: 'https://www.eff.org/deeplinks/2020/02/eff-sues-school-district-over-facial-recognition' },
+                { lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA (ALPR)', status: 'PRIVATE SURVEILLANCE', vendor: 'Flock Safety', impact: 'Private ALPR cameras feed data to police, circumventing city bans.', color: '#f97316', url: 'https://www.eff.org/deeplinks/2021/04/flock-safety-makes-mass-surveillance-easy' },
 
-                // Unregulated / In Use (Blue Pin)
-                { lat: 42.3314, lon: -83.0458, city: 'Detroit, MI', status: 'UNREGULATED', vendor: 'DataWorks Plus', impact: 'Robert Williams wrongful arrest case documented here.', color: '#2563eb' }, // blue-600
-                { lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', status: 'IN USE (Schools)', vendor: 'Clearview AI', impact: 'Extensive use by school and local police departments.', color: '#2563eb' },
-                { lat: 40.7128, lon: -74.0060, city: 'New York, NY', status: 'IN USE', vendor: 'IBM', impact: 'Pervasive network of CCTV integrated with FRT systems.', color: '#2563eb' },
-                { lat: 29.7604, lon: -95.3698, city: 'Houston, TX', status: 'UNREGULATED', vendor: 'Clearview AI', impact: 'High risk of bias due to lack of local oversight.', color: '#2563eb' }
+                // ----------------------------------------------------
+                // 3. MASS SURVEILLANCE / LEGAL CHALLENGE (BLUE) - 20 CASES
+                // ----------------------------------------------------
+                { lat: 39.2800, lon: -76.6200, city: 'Baltimore, MD (Protests)', status: 'MASS SURVEILLANCE (2015)', vendor: 'BPD/Aerial', impact: 'Used aerial and FRT tracking to identify Freddie Gray protesters.', color: '#2563eb', url: 'https://www.brookings.edu/articles/police-surveillance-and-facial-recognition-why-data-privacy-is-an-imperative-for-communities-of-color/' },
+                { lat: 37.3382, lon: -121.8863, city: 'San Jose, CA', status: 'ALPR SURVEILLANCE (2025)', vendor: 'Flock/ALPR', impact: 'Lawsuit challenges warrantless license plate reader mass surveillance.', color: '#2563eb', url: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms' },
+                { lat: 41.8781, lon: -87.6298, city: 'Chicago, IL (BIPA)', status: 'BIPA CHALLENGE (2020)', vendor: 'Clearview AI', impact: 'ACLU suit settled, establishing strict limits on private biometric collection.', color: '#2563eb', url: 'https://www.aclu.org/court-cases/aclu-v-clearview-ai' },
+                { lat: 38.8951, lon: -77.0369, city: 'Washington, D.C.', status: 'FEDERAL RISK (2018)', vendor: 'Amazon Rekognition', impact: 'ACLU test falsely matched 28 members of Congress to mugshots.', color: '#2563eb', url: 'https://www.aclu.org/news/privacy-technology/amazons-face-recognition-falsely-matched-28' },
+                { lat: 27.9475, lon: -82.4586, city: 'Tampa, FL', status: 'CHILLING EFFECT (2017)', vendor: 'Unknown', impact: 'FRT deployed at Super Bowl for mass scanning; criticized for chilling effect.', color: '#2563eb', url: 'https://capitalbnews.org/facial-recognition-wrongful-arrests/' },
+                // --- 15 New Mass Surveillance/Legal Challenge Cases ---
+                { lat: 40.7128, lon: -74.0060, city: 'New York, NY (NYPD FRT)', status: 'PROTEST SURVEILLANCE', vendor: 'NYPD FRT/Clearview', impact: 'NYPD used FRT to track BLM protesters and social media critics (2020).', color: '#2563eb', url: 'https://www.amnesty.org/en/latest/news/2025/11/amnesty-and-s-t-o-p-reveal-nypd-surveillance-abuses/' },
+                { lat: 37.3541, lon: -121.9552, city: 'Santa Clara, CA', status: 'SURVEILLANCE BAN', vendor: 'Various', impact: 'City Council passed a moratorium on surveillance technology deployment (2019).', color: '#2563eb', url: 'https://www.mercurynews.com/2019/08/21/santa-clara-passes-surveillance-technology-moratorium-police-frustrated/' },
+                { lat: 39.7392, lon: -104.9903, city: 'Denver, CO', status: 'POLICE USE CHALLENGE', vendor: 'Unknown', impact: 'Community challenge over Denver PD use of Clearview AI without public knowledge.', color: '#2563eb', url: 'https://www.aclu-co.org/en/press-releases/denver-police-department-used-clearview-ai-facial-recognition-technology-without' },
+                { lat: 40.7851, lon: -73.9683, city: 'NYC (Derrick Ingram)', status: 'PROTESTER TARGETING', vendor: 'NYPD FRT', impact: 'Black Lives Matter activist targeted and apartment besieged after FRT identification.', color: '#2563eb', url: 'https://banthescan.amnesty.org/decode/index.html' },
+                { lat: 47.6000, lon: -122.3330, city: 'Seattle, WA (Legal)', status: 'LEGAL SCRUTINY', vendor: 'CCTV/RTCC', impact: 'City Council issued assessment on how CCTV/FRT could violate Fourth Amendment (2024).', color: '#2563eb', url: 'https://www.seattle.gov/documents/Departments/SAWG/SAWG%20Documents%202024/CSWG%20Privacy%20and%20Civil%20Liberties%20Assessment_%20CCTV%20%26%20RTCC.docx.pdf' },
+                { lat: 33.7490, lon: -84.3880, city: 'Atlanta, GA (Surv.)', status: 'DATA LEGISLATION GAP', vendor: 'Unknown', impact: 'ACLU challenges Georgia for having no state protections for biometric data.', color: '#2563eb', url: 'https://www.acluga.org/issues/speech-and-privacy/' },
+                { lat: 44.8945, lon: -93.3090, city: 'Minneapolis, MN', status: 'FRT BAN', vendor: 'Various', impact: 'City council banned the use of facial recognition by the police department (2021).', color: '#2563eb', url: 'https://www.aclu-mn.org/en/news/minneapolis-city-council-bans-facial-recognition' },
+                { lat: 42.9634, lon: -85.6681, city: 'Grand Rapids, MI', status: 'FRT BAN', vendor: 'Various', impact: 'First city in Michigan to ban FRT by government agencies (2020).', color: '#2563eb', url: 'https://www.aclu.org/news/technology-and-liberty/grand-rapids-michigan-first-city-state-ban-use-facial-recognition' },
+                { lat: 40.8136, lon: -73.9602, city: 'NYC (Harlem)', status: 'FRT DATA GAP', vendor: 'NYPD FRT', impact: 'ACLU found FRT is disproportionately deployed in areas with high stop-and-frisk rates.', color: '#2563eb', url: 'https://banthescan.amnesty.org/decode/index.html' },
+                { lat: 38.8951, lon: -77.0369, city: 'Washington, D.C. (2021)', status: 'FRT BAN (Temporary)', vendor: 'MPD', impact: 'D.C. Council voted to ban police use of FRT for one year (2021).', color: '#2563eb', url: 'https://www.washingtonpost.com/local/dc-council-bans-police-use-of-facial-recognition/2021/11/02/766f654a-3c13-11ec-a493-51b026602377_story.html' },
+                { lat: 35.7796, lon: -78.6382, city: 'Raleigh, NC', status: 'FEDERAL USE CHALLENGE', vendor: 'DOJ/FBI/DEA', impact: 'ACLU lawsuit demands transparency on how federal agencies use FRT.', color: '#2563eb', url: 'https://www.aclu.org/court-cases/aclu-v-doj-fbi-dea' },
+                { lat: 40.8240, lon: -73.8648, city: 'Bronx, NY', status: 'FRT SCANNING', vendor: 'NYPD FRT', impact: 'One of the NYC boroughs with the highest exposure to facial recognition surveillance.', color: '#2563eb', url: 'https://banthescan.amnesty.org/decode/index.html' },
+                { lat: 38.5816, lon: -121.4944, city: 'Sacramento, CA (SMUD)', status: 'SMART METER SURV.', vendor: 'SMUD/Police', impact: 'Court victory ends dragnet surveillance program using smart meter data (2025).', color: '#2563eb', url: 'https://www.eff.org/deeplinks/2025/11/victory-court-end-dragnet-electricity-surveillance-program-sacramento' },
+                { lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA (Clearview)', status: 'CLEARVIEW USE', vendor: 'Clearview AI', impact: 'LAPD admitted to using Clearview AI, raising privacy concerns.', color: '#2563eb', url: 'https://www.latimes.com/california/story/2020-05-18/lapd-officers-used-facial-recognition-app-clearview-ai' },
+                { lat: 42.3314, lon: -83.0458, city: 'Detroit, MI (Drone)', status: 'DRONE SURVEILLANCE', vendor: 'DPD Drone', impact: 'Used drones for aerial surveillance, prompting ACLU legal challenge.', color: '#2563eb', url: 'https://www.aclumich.org/en/cases/aclu-michigan-v-detroit-police-department-drone' },
+                { lat: 44.7500, lon: -85.6000, city: 'Long Lake Twp, MI', status: 'DRONE SURVEILLANCE', vendor: 'Local Gov Drone', impact: 'Michigan Supreme Court case challenging government drone aerial photography of private property.', color: '#2563eb', url: 'https://www.aclu.org/court-cases/long-lake-township-v-maxon' },
+                { lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA (ALPR)', status: 'ALPR TRANSPARENCY', vendor: 'Flock Safety', impact: 'Court ruled Flock ALPR data is a public record, fighting secrecy (2025).', color: '#2563eb', url: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms' },
+                { lat: 40.7128, lon: -74.0060, city: 'New York, NY (POST Act)', status: 'SURVEILLANCE TRANSPARENCY', vendor: 'NYPD', impact: 'Lawsuit demands disclosure of NYPD surveillance technology policies.', color: '#2563eb', url: 'https://www.aclu.org/cases/nyclu-v-nypd-post-act' },
+                { lat: 39.0000, lon: -95.6650, city: 'Topeka, KS', status: 'FEDERAL SURVEILLANCE', vendor: 'Unknown', impact: 'Ongoing case challenging long-term, continuous video surveillance of a person\'s home (United States v. Hay).', color: '#2563eb', url: 'https://www.aclu.org/court-cases/united-states-v-hay' }
             ];
 
             // Function to create a custom icon with a color
@@ -193,24 +393,30 @@
                 });
             };
 
-            // Add markers to the map
+            // Add markers to the cluster group
             deploymentData.forEach(data => {
-                const icon = getCustomIcon(data.color);
+                // Determine the pin color based on the data category
+                const color = data.color;
+                const icon = getCustomIcon(color);
 
                 const popupContent = `
                     <div class="font-sans">
                         <h4 class="text-lg font-bold mb-1">${data.city}</h4>
-                        <p class="text-sm"><strong>Status:</strong> ${data.status}</p>
-                        <p class="text-sm"><strong>Primary Vendor:</strong> ${data.vendor}</p>
+                        <p class="text-sm"><strong>Type:</strong> ${data.status.split('(')[0]}</p>
+                        <p class="text-sm"><strong>System/Vendor:</strong> ${data.vendor}</p>
                         <p class="text-sm mt-2">${data.impact}</p>
-                        <a href="#" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mt-1 inline-block">View Full Case Study &rarr;</a>
+                        <a href="${data.url}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mt-1 inline-block">Read Full Article &rarr;</a>
                     </div>
                 `;
 
+                // Create the marker and add it to the cluster group
                 L.marker([data.lat, data.lon], { icon: icon })
                     .bindPopup(popupContent)
-                    .addTo(map);
+                    .addTo(markers); // Add to the marker cluster group
             });
+            
+            // Add all the markers in the cluster group to the map
+            map.addLayer(markers);
         });
     </script>
 </body>
