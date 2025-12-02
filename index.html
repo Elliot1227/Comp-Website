@@ -3,474 +3,484 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Unseen Record: Biometric Surveillance Accountability</title>
-    <!-- Load Tailwind CSS -->
+    <title>The Unseen Record: Ban Biometric Surveillance</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Load Inter Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Load Leaflet CSS -->
+    <!-- Leaflet CSS for Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossorigin=""/>
-
-    <!-- Load Leaflet Marker Cluster CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+    <!-- Leaflet Marker Cluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.Default.css" />
+    
     <style>
-        /* Custom styles for the map container */
-        #map-container {
-            height: 600px; /* Set a fixed height for the map */
-            width: 100%;
-            border-radius: 0.5rem;
-            box-shadow: 0 10px 15px -3px rgba(255, 255, 255, 0.1), 0 4px 6px -2px rgba(255, 255, 255, 0.05);
-        }
+        /* Essential style to push content below the fixed header */
         body {
+            padding-top: 5rem; /* Matches h-20 (5rem) height of fixed header */
             font-family: 'Inter', sans-serif;
-            /* Permanent Dark Theme Background */
-            background-color: #1f2937; 
-            color: #f3f4f6;
-            /* Guarantees body content starts below the fixed header (h-20 is 5rem) */
-            padding-top: 5rem; 
+            /* Force Dark Mode */
+            background-color: #1f2937; /* Gray-800 */
+            color: #f3f4f6; /* Gray-100 */
         }
-        
-        /* --- FIXED: Guarantees the header stays above Leaflet map tiles --- */
-        #main-header {
-            z-index: 99999; /* Extremely high Z-index to force visibility over all map layers */
+        /* Full screen map container */
+        #map {
+            height: 60vh; 
+            z-index: 1; /* Map layers should sit below the fixed header */
         }
-        
-        /* Fixes for map markers in clusters to use custom colors */
-        .marker-cluster-small div { background-color: rgba(66, 153, 225, 0.6); } /* Blue-ish */
-        .marker-cluster-medium div { background-color: rgba(246, 173, 85, 0.6); } /* Orange-ish */
-        .marker-cluster-large div { background-color: rgba(239, 68, 68, 0.6); } /* Red-ish */
-
-        /* Table Styling */
-        .comparison-table th, .comparison-table td {
-            padding: 1.25rem;
-            text-align: left;
-            border: 1px solid #4b5563; /* Darker border for table */
+        /* Custom styles for the dropdown menu */
+        #dropdown-menu {
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+            transform-origin: top;
         }
-        .comparison-table th {
-            font-weight: 800;
-            font-size: 1.25rem;
-            background-color: #1e40af;
-            color: #f3f4f6;
-        }
-        .comparison-table tr:nth-child(odd) {
-            background-color: #374151; /* Darker odd rows */
-        }
-        .comparison-table tr:nth-child(even) {
-            background-color: #4b5563; /* Darker even rows */
-        }
-        /* Styling for Image Placeholders */
-        .image-placeholder {
-            height: 300px;
-            background-color: #374151;
-            border: 2px dashed #4b5563;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #9ca3af;
-            font-weight: 600;
-            margin: 1.5rem 0;
-            border-radius: 0.5rem;
-        }
+        /* Ensure primary elements adopt dark theme */
+        .bg-white { background-color: #1f2937 !important; }
+        .text-gray-800 { color: #f3f4f6 !important; }
+        .border-gray-200 { border-color: #4b5563 !important; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; }
     </style>
 </head>
-<body class="bg-gray-800 text-gray-100">
 
-    <!-- Header & Navigation - FIXED POSITION & HIGH Z-INDEX -->
-    <header id="main-header" class="bg-gray-900 shadow-lg fixed top-0 left-0 right-0 h-20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-            <h1 class="text-3xl font-extrabold text-white">The Unseen Record</h1>
-            
-            <div class="flex items-center space-x-4">
-                
-                <!-- Dropdown Menu (Permanent Dark Styling) -->
-                <div class="relative inline-block text-left">
-                    <div>
-                        <button type="button" id="dropdown-button" class="inline-flex justify-center w-full rounded-md border border-gray-600 shadow-sm px-4 py-2 bg-gray-700 text-sm font-medium text-gray-200 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500 transition-colors duration-150" aria-expanded="false" aria-haspopup="true">
-                            Navigate Sections
-                            <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="dropdown-menu" class="origin-top-right absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-gray-700 ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="dropdown-button" tabindex="-1">
-                        <div class="py-1" role="none">
-                            <a href="#map-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Tracker</a>
-                            <a href="#bias-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Dashboard</a>
-                            <a href="#analysis-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Analysis</a>
-                            <a href="#alternative-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Dichotomy</a>
-                            <a href="#report-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Report</a>
-                            <a href="#policy-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Legislation</a>
-                            <a href="#action-section" class="text-gray-200 block px-4 py-2 text-sm hover:bg-gray-600" role="menuitem" tabindex="-1">Action</a>
-                        </div>
-                    </div>
-                </div>
+<body class="antialiased min-h-screen">
+
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-20 bg-gray-900 border-b border-gray-700 shadow-xl z-[100] flex items-center justify-between px-6 lg:px-12">
+        <h1 class="text-3xl font-extrabold text-red-500">
+            The Unseen Record: Ban Biometric Surveillance
+        </h1>
+        
+        <!-- Navigation Dropdown -->
+        <div class="relative">
+            <button id="dropdown-toggle" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out flex items-center">
+                Navigate Sections
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            <div id="dropdown-menu" class="absolute right-0 mt-3 w-60 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl opacity-0 invisible translate-y-2">
+                <a href="#hero" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Looming Threat</a>
+                <a href="#tracker" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Accountability Tracker</a>
+                <a href="#bias-stats" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Algorithmic Bias</a>
+                <a href="#analysis" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Authoritarian Control</a>
+                <a href="#dichotomy" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">False Dichotomy</a>
+                <a href="#fourth-amendment" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Fourth Amendment</a>
+                <a href="#first-amendment" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">First Amendment</a>
+                <a href="#action" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Complete Ban & Action</a>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12"> 
+    <!-- Main Content Area -->
+    <main class="container mx-auto px-4 lg:px-8">
 
-        <!-- Hero Section -->
-        <section class="text-center mb-16">
-            <h2 class="text-5xl font-extrabold text-white mb-4">The Algorithmic Threat to Democracy</h2>
-            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
-                The chilling reach of AI surveillance—from facial recognition (FRT) to gait analysis—is actively dismantling the bedrock of a free society. Every click, every step, every protest risks being logged into a permanent, searchable record controlled by the state and private profiteers. This isn't about safety; it's about control. We must not stand silently by as our liberties are eroded by biased code and unchecked power.
-            </p>
+        <!-- Looming Threat Section -->
+        <section id="hero" class="py-16 md:py-20 flex flex-col lg:flex-row items-center justify-between min-h-[70vh] text-center lg:text-left">
+            <div class="lg:w-1/2 space-y-8">
+                <h2 class="text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
+                    The Algorithmic Threat to Democracy
+                </h2>
+                <p class="text-xl text-gray-300 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                    The unchecked growth of AI-powered biometric surveillance—including Facial Recognition Technology (FRT)—is a present danger actively being deployed by law enforcement and private entities across the country. These tools capture and catalog our most private characteristics to build a searchable, permanent record of every public movement, shattering our right to anonymity and paving the path for a chilling, authoritarian future.
+                </p>
+                <a href="#action" class="inline-block px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-xl shadow-lg transition duration-200 transform hover:scale-105">
+                    Demand a Complete Ban
+                </a>
+            </div>
+            
+            <!-- Image Placeholders -->
+            <div class="lg:w-1/2 mt-12 lg:mt-0 flex flex-wrap justify-center gap-4">
+                <div class="w-full sm:w-5/12 h-40 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center text-gray-400 border border-gray-600">
+                    [Image Placeholder: Surveillance Camera Cluster]
+                </div>
+                <div class="w-full sm:w-5/12 h-40 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center text-gray-400 border border-gray-600">
+                    [Image Placeholder: Abstract Digital Face Grid]
+                </div>
+                <div class="w-full sm:w-5/12 h-40 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center text-gray-400 border border-gray-600">
+                    [Image Placeholder: Crowd of Protesters with Privacy Overlay]
+                </div>
+                <div class="w-full sm:w-5/12 h-40 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center text-gray-400 border border-gray-600">
+                    [Image Placeholder: Locked Phone with Fingerprint Scan]
+                </div>
+            </div>
         </section>
 
-        <!-- 1. The Map: Accountability Tracker -->
-        <section id="map-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">1. Accountability Tracker: Documented Incidents</h3>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Map Container -->
-                <div class="lg:col-span-2">
-                    <div id="map-container"></div>
+        <!-- Accountability Tracker Section (Map) -->
+        <section id="tracker" class="pt-16 pb-12">
+            <h2 class="text-4xl font-bold mb-8 text-center text-red-500">
+                Accountability Tracker: Documenting the Harm
+            </h2>
+            <div id="map" class="rounded-xl shadow-2xl border-4 border-gray-700"></div>
+            <div class="mt-8 p-4 bg-gray-800 rounded-xl border border-gray-700 shadow-inner">
+                <h3 class="text-xl font-semibold mb-2 text-red-500">Map Key: Documented Harm Categories</h3>
+                <div class="flex flex-wrap justify-center gap-4 text-sm font-medium">
+                    <span class="flex items-center text-red-400"><span class="h-3 w-3 rounded-full bg-red-600 mr-2"></span> Wrongful Arrest/Misidentification</span>
+                    <span class="flex items-center text-yellow-400"><span class="h-3 w-3 rounded-full bg-yellow-600 mr-2"></span> Commercial/Private Abuse</span>
+                    <span class="flex items-center text-blue-400"><span class="h-3 w-3 rounded-full bg-blue-600 mr-2"></span> Mass Surveillance/Legal Challenge</span>
                 </div>
-                <!-- Sidebar/Key -->
-                <div class="lg:col-span-1 bg-gray-700 p-6 rounded-lg shadow-lg">
-                    <h4 class="text-2xl font-bold text-indigo-400 mb-4">Deployment Status Key (50 Incidents)</h4>
-                    <ul class="space-y-3 text-gray-200">
-                        <li class="flex items-center">
-                            <span class="inline-block w-4 h-4 rounded-full bg-red-600 mr-3"></span>
-                            <span class="text-lg font-medium">Wrongful Arrest / Misidentification (15 Cases)</span>
-                        </li>
-                        <li class="flex items-center">
-                            <span class="inline-block w-4 h-4 rounded-full bg-orange-500 mr-3"></span>
-                            <span class="text-lg font-medium">Commercial / Retail Abuse (15 Cases)</span>
-                        </li>
-                        <li class="flex items-center">
-                            <span class="inline-block w-4 h-4 rounded-full bg-blue-600 mr-3"></span>
-                            <span class="text-lg font-medium">Mass Surveillance / Legal Challenge (20 Cases)</span>
-                        </li>
-                    </ul>
-                    <div class="mt-6 pt-4 border-t border-gray-600">
-                        <p class="text-sm text-gray-400">
-                            Markers in high-density areas are clustered and sized to show concentration. Click a cluster to zoom in.
-                        </p>
+            </div>
+        </section>
+
+        <!-- Algorithmic Bias Section -->
+        <section id="bias-stats" class="py-16">
+            <h2 class="text-4xl font-bold mb-12 text-center text-red-500">
+                Algorithmic Bias: When the Computer Gets It Wrong
+            </h2>
+            <div class="grid md:grid-cols-3 gap-10 text-center">
+                
+                <!-- Stat 1: Racial Disparity -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border-t-4 border-red-600">
+                    <p class="text-6xl lg:text-8xl font-black text-white mb-4">11.25%</p>
+                    <h3 class="text-2xl font-bold text-red-400 mb-4">Lower Accuracy for Africans</h3>
+                    <p class="text-gray-300">
+                        Studies show that FRT demonstrates an 11.25% lower True Positive Rate (TPR) for African populations compared to Caucasians. This is not a glitch; this is systemic failure encoded, translating directly into the disproportionate criminalization of communities of color.
+                    </p>
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <a href="https://doi.org/10.48550/arXiv.2307.10011" target="_blank" class="text-sm font-medium text-blue-400 hover:text-blue-500 underline">Source: Sarridis et al. (2025)</a>
+                    </div>
+                </div>
+
+                <!-- Stat 2: Intersectionality -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border-t-4 border-red-600">
+                    <p class="text-6xl lg:text-8xl font-black text-white mb-4">+39.89%</p>
+                    <h3 class="text-2xl font-bold text-red-400 mb-4">Error Spike for Older Black Women</h3>
+                    <p class="text-gray-300">
+                        The biases compound: African females over 60 years old face a +39.89% higher misidentification rate compared to the lowest-error demographic. This highlights the crushing reality that the technology is least reliable for those who already face the highest scrutiny.
+                    </p>
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <a href="https://doi.org/10.48550/arXiv.2307.10011" target="_blank" class="text-sm font-medium text-blue-400 hover:text-blue-500 underline">Source: Sarridis et al. (2025)</a>
+                    </div>
+                </div>
+
+                <!-- Stat 3: Automation Bias -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border-t-4 border-red-600">
+                    <p class="text-6xl lg:text-8xl font-black text-white mb-4">96%</p>
+                    <h3 class="text-2xl font-bold text-red-400 mb-4">Failure Rate If Used Alone</h3>
+                    <p class="text-gray-300">
+                        The former Detroit Police Chief admitted that if officers relied solely on FRT, it would yield a misidentification rate of 96%. Yet, due to automation bias, police often treat a flawed match as fact, accelerating the process of unjust incarceration.
+                    </p>
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <a href="https://innocenceproject.org/news/when-artificial-intelligence-gets-it-wrong/" target="_blank" class="text-sm font-medium text-blue-400 hover:text-blue-500 underline">Source: Innocence Project (2023)</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deeper Dive on Bias - SEPARATE BOX -->
+            <div class="mt-16 p-8 bg-gray-900 rounded-xl shadow-2xl border border-gray-700">
+                <h3 class="text-2xl font-bold text-white mb-4 border-b pb-2 border-red-600">The Root of the Failure: Bad Design Meets the Real World</h3>
+                <p class="text-lg text-gray-300 leading-relaxed">
+                    The core problem is twofold: **biased model design** and **inherent structural limitations**. Algorithms are historically trained on non-diverse datasets (a "lack of diverse representations" <a href="https://doi.org/10.48550/arXiv.2307.10011" target="_blank" class="text-blue-400 hover:text-blue-500 underline">(Sarridis et al.)</a>, which makes them poor at accurately mapping and matching faces of color.
+                </p>
+                <p class="text-lg text-gray-300 leading-relaxed mt-4">
+                    Furthermore, accuracy plummets in real-world environments where variables like "bad angles and poor lighting make it less accurate" <a href="https://www.washingtonpost.com/opinions/2025/02/24/ai-crime-facial-recognition-technology/" target="_blank" class="text-blue-400 hover:text-blue-500 underline">(Johnson and Johnson)</a>. For people with darker skin, poor lighting often results in less visible feature definition for the camera, contributing to higher misidentification rates. No amount of tweaking can fix a system fundamentally flawed by light, shadow, and biased input data.
+                </p>
+            </div>
+
+            <!-- Robert Williams Case Image -->
+            <div class="mt-16 text-center">
+                <div class="max-w-md mx-auto h-64 bg-gray-700 rounded-xl shadow-xl flex items-center justify-center text-gray-400 border border-gray-600">
+                    [Image Placeholder: Photo of Robert Williams with his family or court documents]
+                </div>
+                <p class="mt-4 text-sm text-gray-500 italic">
+                    Robert Williams (Detroit, 2020) was the first known person in the U.S. to be wrongfully arrested based solely on a faulty facial recognition match. He was detained for 30 hours for a crime he did not commit.
+                </p>
+            </div>
+        </section>
+
+        <!-- Privacy & Authoritarian Control Section -->
+        <section id="analysis" class="py-16">
+            <h2 class="text-4xl font-bold mb-10 text-center text-red-500">
+                Privacy & Authoritarian Control: The Loss of Anonymous Life
+            </h2>
+            <div class="flex flex-col lg:flex-row items-center gap-10">
+                <div class="lg:w-1/2 flex justify-center order-2 lg:order-1">
+                    <div class="w-full max-w-lg h-80 bg-gray-700 rounded-xl shadow-xl flex items-center justify-center text-gray-400 border border-gray-600">
+                        [Image Placeholder: Surveillance of the Uyghur population in China]
+                    </div>
+                </div>
+                <div class="lg:w-1/2 space-y-6 order-1 lg:order-2">
+                    <p class="text-xl text-gray-300 leading-relaxed">
+                        Privacy is the right to move and associate freely without permanent observation. FRT shatters this, enabling a severe "power imbalance between the state and the citizenry" <a href="https://doi.org/10.1007/s10676-021-09605-2" target="_blank" class="text-blue-400 hover:text-blue-500 underline">(Markus and Miller)</a>. The commercialization of surveillance, where private companies scrape billions of images and sell the infrastructure to police, bypasses democratic oversight entirely.
+                    </p>
+                    <p class="text-xl text-gray-300 leading-relaxed border-l-4 border-red-600 pl-4">
+                        The ultimate outcome of unchecked biometric tracking is the slide into tyranny. The capability is already weaponized: the Chinese Communist Party's mass surveillance of the Uyghur Muslim population relies heavily on facial and gait recognition to track individuals, restrict their freedoms, and enforce ethnic cleansing. Allowing these tools to flourish in a democracy dangerously normalizes the technology of oppression.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Fourth Amendment Section -->
+        <section id="fourth-amendment" class="py-16 bg-gray-900 rounded-xl my-16 shadow-2xl px-6 lg:px-16">
+            <h2 class="text-4xl font-bold mb-8 text-center text-red-500">
+                Fourth Amendment Violation: The Comprehensive Chronicle
+            </h2>
+            <p class="text-xl text-gray-300 leading-relaxed max-w-5xl mx-auto mb-10 text-center">
+                The Fourth Amendment secures "the privacies of life" against arbitrary government power. While a fleeting glance in public is not a search, the Supreme Court ruled in Carpenter v. United States that long-term tracking of location data is unconstitutional without a warrant because it creates a "comprehensive chronicle of the user’s past movements."
+                <a href="https://www.loyolaoflosangeleslawreview.org/smile-youre-on-camera-police-departments-use-of-facial-recognition-technology-the-fourth-amendment" target="_blank" class="text-blue-400 hover:text-blue-500 underline">(Bass, 2022)</a>
+            </p>
+            <div class="flex flex-col lg:flex-row gap-10">
+                <div class="lg:w-1/2 space-y-4">
+                    <h3 class="text-2xl font-semibold text-white">FRT as a Perpetual Search</h3>
+                    <p class="text-lg text-gray-300">
+                        FRT is far more pervasive than traditional methods. It automatically links every sighting of a person's face across massive networks of cameras to their personal identity. This passive, continuous data collection constitutes the exact kind of unwarranted "search" the Supreme Court ruled against. Every public outing becomes a piece of evidence stored in a permanent, searchable database.
+                    </p>
+                    <div class="h-48 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center text-gray-400 border border-gray-600">
+                        [Image Placeholder: Diagram of Fourth Amendment violation via digital tracking]
+                    </div>
+                </div>
+                <div class="lg:w-1/2 space-y-4">
+                    <h3 class="text-2xl font-semibold text-white">Eroding Probable Cause</h3>
+                    <p class="text-lg text-gray-300">
+                        If the state can identify you instantly and track your entire movement history, the constitutional requirement for police to establish probable cause before an investigation begins is effectively gutted. Because FRT transforms random public observation into a searchable, limitless record, its deployment is fundamentally incompatible with our constitutional safeguards.
+                    </p>
+                    <div class="h-48 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center text-gray-400 border border-gray-600">
+                        [Image Placeholder: Legal concept of a search versus passive surveillance]
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 2. The Bias: Data and Disparity Dashboard -->
-        <section id="bias-section" class="mb-8">
-            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">2. The Unequal Gaze: FRT's Disproportionate Impact</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-gray-700 p-6 rounded-lg shadow-lg border-l-4 border-red-500">
-                    <p class="text-2xl font-bold text-red-400">The Terror of False Match</p>
-                    <p class="text-lg font-medium mt-2 text-gray-200">Imagine being torn from your family and jailed, all because a computer code decided you were guilty. FRT fails women, the elderly, and people of color at devastatingly higher rates.</p>
-                    <p class="text-sm text-gray-400 mt-1">This catastrophic unreliability is embedded in algorithms built on unrepresentative, racially skewed data sets.</p>
+        <!-- First Amendment Section -->
+        <section id="first-amendment" class="py-16">
+            <h2 class="text-4xl font-bold mb-8 text-center text-red-500">
+                First Amendment Violation: The Chilling Effect
+            </h2>
+            <p class="text-xl text-gray-300 leading-relaxed max-w-4xl mx-auto mb-10 text-center">
+                The ability to speak freely and organize without fear is non-negotiable in a free society. Biometric surveillance is a tool of intimidation that actively discourages the exercise of these rights, generating a dangerous "chilling effect."
+            </p>
+            <div class="flex flex-col lg:flex-row gap-10">
+                <div class="lg:w-1/2 space-y-4">
+                    <h3 class="text-2xl font-semibold text-white">Silencing Dissent</h3>
+                    <p class="text-lg text-gray-300">
+                        As found in research by Bass (2022), Black Lives Matter protestors "feared that the police would retaliate against them" since law enforcement could easily identify them using FRT.
+                        <a href="https://www.loyolaoflosangeleslawreview.org/smile-youre-on-camera-police-departments-use-of-facial-recognition-technology-the-fourth-amendment" target="_blank" class="text-blue-400 hover:text-blue-500 underline">(Bass, 2022)</a> If citizens know they can be permanently logged while attending a protest, organizing a union, or joining a political rally, they "may hesitate to participate," weakening the very fabric of democracy.
+                    </p>
+                    <div class="h-48 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center text-gray-400 border border-gray-600">
+                        [Image Placeholder: Silhouette of protesters with FRT grid overlay]
+                    </div>
                 </div>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-lg border-l-4 border-purple-500">
-                    <p class="text-2xl font-bold text-purple-400">The Cycle of Injustice</p>
-                    <p class="text-lg font-medium mt-2 text-gray-200">The systems are fed mugshot databases already saturated with images from over-policed Black and Brown communities. The result? A biased input drives a biased output, guaranteeing the cycle of systemic injustice continues.</p>
-                    <p class="text-sm text-gray-400 mt-1">FRT doesn't solve racial disparity; it industrializes it, using cold code to justify discriminatory policing practices.</p>
-                </div>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-lg border-l-4 border-yellow-500">
-                    <p class="text-2xl font-bold text-yellow-400">The Power of Blind Faith</p>
-                    <p class="text-lg font-medium mt-2 text-gray-200">Law enforcement, seduced by the illusion of AI infallibility, frequently ignores human bias and evidence, blindly trusting the algorithm. This cognitive failure turns a technical flaw into a life-altering tragedy.</p>
-                    <p class="text-sm text-gray-400 mt-1">For victims like Robert Williams, the computer's word alone was enough to strip them of 30 hours of freedom.</p>
+                <div class="lg:w-1/2 space-y-4">
+                    <h3 class="text-2xl font-semibold text-white">The Loss of Anonymity</h3>
+                    <p class="text-lg text-gray-300">
+                        The threat of permanent identification induces self-censorship. Activism, political speech, and even association with certain groups rely on anonymity to protect participants from harassment or retaliation by the state or private entities. FRT eliminates that layer of protection, turning constitutional freedoms into high-risk behaviors.
+                    </p>
+                    <div class="h-48 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center text-gray-400 border border-gray-600">
+                        [Image Placeholder: Keyboard with a hand hovering, symbolizing self-censorship]
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- 2.5. Deeper Analysis: Disparate Impact (New Section with Image Placeholder) -->
-        <section id="analysis-section" class="mb-16 bg-gray-700 p-8 rounded-lg shadow-lg">
-            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">2.5. Deeper Analysis: Disparate Impact</h3>
-            <div class="prose max-w-none text-gray-300">
-                <p class="text-xl font-semibold mb-4">The trauma is real. It is a terrifying realization that your identity, your freedom, and your family's sense of safety can be instantly obliterated by a cold, flawed line of code.</p>
-                <p>The injustice inflicted on Porcha Woodruff and Nijeer Parks—innocent people detained based solely on faulty algorithmic matches—underscores a terrifying truth: this technology is fundamentally incompatible with the principle of equal justice. We are being asked to accept a technology that is designed to fail certain demographics more often. Even if the software were hypothetically perfect, its real-world deployment in poor lighting or angled surveillance footage ensures higher error rates for people of color, perpetually reinforcing discriminatory policing.</p>
+        <!-- The Alternative: True Public Safety (T-Chart) -->
+        <section id="dichotomy" class="py-16 bg-gray-900 rounded-xl my-16 shadow-2xl">
+            <h2 class="text-4xl font-bold mb-10 text-center text-red-500">
+                False Dichotomy: Surveillance vs. True Safety
+            </h2>
+            <p class="text-xl text-gray-300 leading-relaxed max-w-4xl mx-auto mb-12 text-center">
+                We must reject the myth that safety requires sacrificing freedom. Evidence proves that investing in genuine public welfare is not only ethical and constitutional but also far more effective than any flawed surveillance system.
+            </p>
+
+            <!-- Comparison Table (T-Chart) -->
+            <div class="grid lg:grid-cols-2 gap-8">
                 
-                <!-- Placeholder for Picture -->
-                <div class="image-placeholder">
-                    
+                <!-- Column 1: Punitive Surveillance -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-inner border border-red-700">
+                    <h3 class="text-2xl font-extrabold text-red-500 mb-4 text-center border-b pb-2 border-red-700">
+                        PUNITIVE SURVEILLANCE (FRT & Biometrics)
+                    </h3>
+                    <ul class="space-y-4 text-lg text-gray-300 list-none pl-0">
+                        <li class="flex items-start"><span class="text-red-600 mr-2 font-black text-2xl">✗</span> **Magnifies Racial Bias:** Systems exhibit structurally higher error rates against Black and Brown communities.
+                            <a href="https://doi.org/10.48550/arXiv.2307.10011" target="_blank" class="text-blue-400 hover:text-blue-500 underline text-sm block mt-1">(Sarridis et al., 2025)</a></li>
+                        <li class="flex items-start"><span class="text-red-600 mr-2 font-black text-2xl">✗</span> **Constitutional Violation:** Creates unwarranted movement records, breaching the Fourth Amendment.
+                            <a href="https://www.loyolaoflosangeleslawreview.org/smile-youre-on-camera-police-departments-use-of-facial-recognition-technology-the-fourth-amendment" target="_blank" class="text-blue-400 hover:text-blue-500 underline text-sm block mt-1">(Bass, 2022)</a></li>
+                        <li class="flex items-start"><span class="text-red-600 mr-2 font-black text-2xl">✗</span> **Suppresses Speech:** Generates a "chilling effect" on dissent and political assembly.
+                            <a href="https://www.loyolaoflosangeleslawreview.org/smile-youre-on-camera-police-departments-use-of-facial-recognition-technology-the-fourth-amendment" target="_blank" class="text-blue-400 hover:text-blue-500 underline text-sm block mt-1">(Bass, 2022)</a></li>
+                        <li class="flex items-start"><span class="text-red-600 mr-2 font-black text-2xl">✗</span> **Poor Efficacy:** Crime reduction rates from FRT adoption are low (average 14% from 2002 to 2020).
+                            <a href="https://www.washingtonpost.com/opinions/2025/02/24/ai-crime-facial-recognition-technology/" target="_blank" class="text-blue-400 hover:text-blue-500 underline text-sm block mt-1">(Johnson and Johnson, 2025)</a></li>
+                    </ul>
                 </div>
 
-                <p>Furthermore, the mass deployment of this technology in marginalized neighborhoods turns public space into a constant, recordable police lineup. It normalizes surveillance, poisons trust between the community and law enforcement, and actively suppresses the democratic right to dissent. Imagine living every day knowing that criticizing power or attending a peaceful protest means risking permanent identification and potential government retaliation.</p>
-                <p>The only responsible path forward is not regulation, but prohibition—a refusal to deploy tools that are structurally hostile to the core values of an open and equitable society.</p>
+                <!-- Column 2: Less Intrusive Measures -->
+                <div class="bg-gray-800 p-6 rounded-xl shadow-inner border border-green-700">
+                    <h3 class="text-2xl font-extrabold text-green-500 mb-4 text-center border-b pb-2 border-green-700">
+                        COMMUNITY & HEALTH INVESTMENT (Proven Solutions)
+                    </h3>
+                    <ul class="space-y-4 text-lg text-gray-300 list-none pl-0">
+                        <li class="flex items-start"><span class="text-green-600 mr-2 font-black text-2xl">✓</span> **Addresses Root Causes:** Focuses on jobs, housing, and mental health treatment.
+                            <a href="https://www.brookings.edu/articles/a-new-community-safety-blueprint-how-the-federal-government-can-address-violence-and-harm-through-a-public-health-approach/" target="_blank" class="text-blue-400 hover:text-blue-500 underline text-sm block mt-1">(Sebastian et al., 2024)</a></li>
+                        <li class="flex items-start"><span class="text-green-600 mr-2 font-black text-2xl">✓</span> **High Efficacy:** Healthcare funding is associated with reducing "violence-related arrests by 19% to 29%."
+                            <a href="https://www.washingtonpost.com/opinions/2025/02/24/ai-crime-facial-recognition-technology/" target="_blank" class="text-blue-400 hover:text-blue-500 underline text-sm block mt-1">(Johnson and Johnson, 2025)</a></li>
+                        <li class="flex items-start"><span class="text-green-600 mr-2 font-black text-2xl">✓</span> **Community Desirability:** 60% of crime survivors prefer prevention and rehabilitation over punishment.
+                            <a href="https://www.brookings.edu/articles/a-new-community-safety-blueprint-how-the-federal-government-can-address-violence-and-harm-through-a-public-health-approach/" target="_blank" class="text-blue-400 hover:text-blue-500 underline text-sm block mt-1">(Sebastian et al., 2024)</a></li>
+                        <li class="flex items-start"><span class="text-green-600 mr-2 font-black text-2xl">✓</span> **Upholds Rights:** Achieves safety goals without encroaching on any fundamental liberties.</li>
+                    </ul>
+                </div>
             </div>
-        </section>
-
-        <!-- 3. The Alternative: True Public Safety -->
-        <section id="alternative-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">3. The False Dichotomy: Choosing Justice Over Control</h3>
             
-            <p class="text-xl font-medium text-gray-300 mb-6 text-center">We must reject the manufactured panic that claims we must sacrifice our deepest freedoms for an illusion of safety. The true choice is between oppressive control and genuine, community-driven public well-being.</p>
-
-            <div class="overflow-x-auto shadow-xl rounded-lg">
-                <table class="comparison-table w-full">
-                    <thead>
-                        <tr>
-                            <th class="bg-red-900 text-red-300 w-1/2">Punitive Surveillance (FRT & Mass Monitoring)</th>
-                            <th class="bg-green-900 text-green-300 w-1/2">Public Health Investment (Community Solutions)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="border-l-4 border-red-400 text-gray-200">
-                                <strong class="text-red-400">Creates Fear & Inequity:</strong> Algorithms misidentify PoC at higher rates, weaponizing technology against marginalized communities.
-                            </td>
-                            <td class="border-l-4 border-green-400 text-gray-200">
-                                <strong class="text-green-400">Heals Root Causes:</strong> Addresses the true drivers of violence: poverty, lack of educational opportunity, and untreated mental health crises.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border-l-4 border-red-400 text-gray-200">
-                                <strong class="text-red-400">Destroys Constitutional Trust:</strong> Creates permanent, digital dossiers of every citizen's movement, rendering the Fourth Amendment meaningless.
-                            </td>
-                            <td class="border-l-4 border-green-400 text-gray-200">
-                                <strong class="text-green-400">Delivers Real Results:</strong> Evidence shows investments in healthcare and community programs reduce violence-related arrests by nearly 30%.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border-l-4 border-red-400 text-gray-200">
-                                <strong class="text-red-400">Silences Dissent:</strong> The fear of permanent identification forces self-censorship, poisoning the democratic function of free assembly and speech.
-                            </td>
-                            <td class="border-l-4 border-green-400 text-gray-200">
-                                <strong class="text-green-400">Honors Victims' Wishes:</strong> Reflects the mandate of crime survivors, 60% of whom prefer prevention and rehabilitation over punitive methods.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border-l-4 border-red-400 text-gray-200">
-                                <strong class="text-red-400">Exhausts Resources:</strong> Wastes vast public funds on unreliable tech contracts instead of community well-being.
-                            </td>
-                            <td class="border-l-4 border-green-400 text-gray-200">
-                                <strong class="text-green-400">Builds Sustainable Futures:</strong> Creates durable community infrastructure, jobs, housing, and trust—the true foundations of lasting peace.
-                            </td>
-                        </tr>
-                        <tr>
-                            <td class="border-l-4 border-red-400 text-gray-200">
-                                <strong class="text-red-400">Enables Authoritarianism:</strong> Provides a ready-made architecture for oppressive monitoring and control, bypassing democratic oversight.
-                            </td>
-                            <td class="border-l-4 border-green-400 text-gray-200">
-                                <strong class="text-green-400">Upholds Democratic Values:</strong> Empowers local initiatives and restores the sense of shared safety without sacrificing civil liberties.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Conclusion -->
-            <div class="mt-8 text-center bg-gray-700 p-6 rounded-lg shadow-inner">
-                <p class="text-2xl font-extrabold text-indigo-400">
-                    Public Health Investment is the Better Choice
-                </p>
-                <p class="text-lg text-gray-300 mt-2">
-                    The evidence is an undeniable cry for justice: preventative and community-based solutions are profoundly more effective, humane, and compatible with a free society. To choose costly, biased surveillance over investments in public health is a moral and policy failure that trades human dignity for oppressive control.
-                </p>
-            </div>
+            <p class="text-3xl font-extrabold mt-12 text-center text-green-500 bg-gray-700 p-4 rounded-lg">
+                The choice is clear: The ethical path is the more effective path.
+            </p>
         </section>
 
-        <!-- 4. In-Depth Report: The Case for a Ban -->
-        <section id="report-section" class="mb-16 bg-gray-700 p-8 rounded-lg shadow-lg">
-            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">4. The Incompatibility of FRT with a Liberal Democracy</h3>
-            <div class="prose max-w-none text-gray-300">
-                <p class="text-xl font-semibold mb-4">The constitutional arguments against biometric surveillance center on the terrifying violation of our Fourth and First Amendment rights.</p>
-                <p>The Fourth Amendment was designed to secure "the privacies of life" against "arbitrary power." FRT turns random public sightings into a continuous, comprehensive digital chronicle of your life—tracking every doctor's visit, every political rally, every association. This is the very mass tracking the Supreme Court declared unconstitutional in *Carpenter v. United States*. We face a future where the government maintains a searchable, permanent record of every person, guilty or innocent, destroying the anonymity essential to liberty. </p>
-                
-                <!-- Placeholder for Picture -->
-                <div class="image-placeholder">
-                    
-                </div>
-
-                <p>Beyond privacy, the threat of permanent identification instills a profound chilling effect. Imagine hesitating to attend a protest or speak against power because you know the state can log your presence instantly. This fear actively suppresses the democratic rights to criticize the government and assemble freely, proving that this technology is not just flawed—it is **structurally hostile** to the core values of an open society.</p>
-                <h4 class="text-2xl font-semibold mt-6 mb-3">The Inescapable Erosion of Freedom</h4>
-                <p>If we allow these tools to become ubiquitous, we normalize the state's capacity for total surveillance. The technology itself is the problem; regulation only serves to legitimize an inherently tyrannical capability. Only a complete ban can protect the promise of American liberty.</p>
-                <h4 class="text-2xl font-semibold mt-6 mb-3">The Need for Total Prohibition</h4>
-                <p>A society that is constantly monitored is a society that is afraid. We must demand lawmakers protect our fundamental right to anonymity in public, ensuring that future generations do not inherit a world where freedom is conditional upon silence and invisibility.</p>
-            </div>
-        </section>
-
-        <!-- 5. Legislation & Policy Updates -->
-        <section id="policy-section" class="mb-16">
-            <h3 class="text-4xl font-semibold text-gray-200 mb-6 border-b-2 border-indigo-500 pb-2">5. The Global Resistance to Biometric Surveillance</h3>
-            <div class="bg-gray-700 p-8 rounded-lg shadow-lg">
-                <p class="text-xl font-semibold mb-4 text-gray-300">The fight for digital liberty is being waged in courtrooms and city halls across the nation, pushing back against the surveillance tide.</p>
-                <p class="text-gray-300">Landmark victories, such as Chicago's BIPA lawsuit against Clearview AI, which resulted in a nationwide settlement limiting sales to private entities, prove that strong state privacy laws work. Cities like San Francisco, Boston, and Minneapolis have already taken the courageous step of enacting full bans on government use of FRT, recognizing its discriminatory engine and its constitutional threat. Yet, new threats emerge daily, from systems like Flock Safety (ALPR/License Plate Readers) to acoustic surveillance. The only acceptable end goal is a comprehensive, nationwide prohibition that guarantees the right to be unseen.</p>
-                
-                <!-- Placeholder for Picture -->
-                <div class="image-placeholder">
-                    
-                </div>
-
-                <ul class="list-disc list-inside ml-4 mt-4 text-gray-300 space-y-2">
-                    <li>**BIPA Laws:** Advocate for the passage of Biometric Information Privacy Acts in all 50 states.</li>
-                    <li>**Defund Surveillance:** Demand that local councils reallocate funds from surveillance contracts to community services.</li>
-                    <li>**Transparency:** Challenge police departments to disclose every instance of FRT and ALPR usage.</li>
-                </ul>
-            </div>
-        </section>
-
-        <!-- 6. Take Action Section -->
-        <section id="action-section" class="text-center py-12 bg-gray-700 rounded-lg shadow-xl">
-            <h3 class="text-4xl font-bold text-red-400 mb-4">6. END THE FEAR: Join the Fight to Ban the Scan</h3>
-            <p class="text-xl text-gray-300 mb-8">This is a fight for the soul of our democracy. Every documented incident of wrongful arrest—every life upended by flawed tech—is a desperate plea for us to act. We must reject the false choice between safety and freedom and demand justice now.</p>
-            <a href="#" class="inline-block px-10 py-4 bg-red-600 text-white text-xl font-semibold rounded-lg hover:bg-red-700 transition duration-300 transform hover:scale-105 shadow-2xl">
-                DEMAND A BAN: Contact Your Legislator Today
+        <!-- Action Section (Complete Ban) -->
+        <section id="action" class="py-20 text-center">
+            <h2 class="text-5xl font-extrabold tracking-tight mb-8 text-red-500">
+                The Only Path Forward: A Complete Ban
+            </h2>
+            <p class="text-2xl text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed">
+                Regulation cannot fix a technology whose fundamental design is structurally racist and constitutionally dangerous. The promise of safety should never override the inalienable rights to liberty and justice for all. The time for a moratorium is over. We demand a full prohibition.
+            </p>
+            
+            <a href="action.html" class="inline-block px-12 py-5 bg-red-700 hover:bg-red-800 text-white font-black text-2xl uppercase rounded-xl shadow-2xl transition duration-300 transform hover:scale-105 border-4 border-red-500">
+                CONTACT YOUR REPRESENTATIVE NOW
             </a>
         </section>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-gray-900 text-white mt-12">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
-            <p>&copy; 2025 The Unseen Record. Built on the principles of privacy, equality, and justice.</p>
-        </div>
-    </footer>
-
-    <!-- Load Leaflet JavaScript -->
+    <!-- Leaflet JS and Marker Cluster JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""></script>
-            
-    <!-- Load Leaflet Marker Cluster Plugin -->
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.0/dist/leaflet.markercluster.js"></script>
 
     <script>
-        // --- DROPDOWN TOGGLE LOGIC ---
-        const dropdownButton = document.getElementById('dropdown-button');
-        const dropdownMenu = document.getElementById('dropdown-menu');
-
-        dropdownButton.addEventListener('click', () => {
-            const isVisible = dropdownMenu.classList.toggle('hidden');
-            dropdownButton.setAttribute('aria-expanded', !isVisible);
-        });
-
-        // Close the dropdown if the user clicks outside of it
-        document.addEventListener('click', (event) => {
-            if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                dropdownMenu.classList.add('hidden');
-                dropdownButton.setAttribute('aria-expanded', 'false');
-            }
-        });
-        
-        // --- LEAFLET MAP INITIALIZATION ---
         document.addEventListener('DOMContentLoaded', () => {
-            const map = L.map('map-container').setView([39.8283, -98.5795], 4); // Center on the US
+            // Dropdown Menu Logic
+            const toggleButton = document.getElementById('dropdown-toggle');
+            const menu = document.getElementById('dropdown-menu');
 
+            function toggleDropdown() {
+                const isVisible = menu.classList.toggle('invisible');
+                menu.classList.toggle('opacity-0', isVisible);
+                menu.classList.toggle('translate-y-2', isVisible);
+                menu.classList.toggle('opacity-100', !isVisible);
+                menu.classList.toggle('translate-y-0', !isVisible);
+            }
+
+            toggleButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleDropdown();
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!menu.contains(e.target) && !toggleButton.contains(e.target) && !menu.classList.contains('invisible')) {
+                    toggleDropdown();
+                }
+            });
+
+            // Handle navigation link clicks
+            menu.querySelectorAll('a').forEach(link => {
+                link.addEventListener('click', () => {
+                    // Close dropdown after click
+                    if (!menu.classList.contains('invisible')) {
+                        toggleDropdown();
+                    }
+                });
+            });
+
+            // --- Map Initialization ---
+
+            // Initialize Map
+            var map = L.map('map').setView([39.8283, -98.5795], 4); // Centered on US, zoom level 4
+
+            // Add OpenStreetMap tiles
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
-                attribution: '© OpenStreetMap contributors'
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
 
-            // Initialize a Marker Cluster Group
-            const markers = L.markerClusterGroup();
+            // Initialize Marker Cluster Group
+            var markers = L.markerClusterGroup();
 
-
-            // --- 50 DOCUMENTED INCIDENTS OF BIOMETRIC SURVEILLANCE ABUSE ---
+            // Dataset of 50 Biometric Surveillance Incidents
             const deploymentData = [
-                // ----------------------------------------------------
-                // 1. WRONGFUL ARREST / MISIDENTIFICATION (RED) - 15 CASES
-                // ----------------------------------------------------
-                { lat: 42.3314, lon: -83.0458, city: 'Detroit, MI (Williams)', status: 'WRONGFUL ARREST (2020)', vendor: 'DataWorks Plus', impact: 'Robert Williams: First known wrongful FRT arrest.', color: '#ef4444', url: 'https://www.aclu.org/cases/williams-v-city-of-detroit-face-recognition-false-arrest' }, 
-                { lat: 42.3400, lon: -83.0500, city: 'Detroit, MI (Woodruff)', status: 'WRONGFUL ARREST (2023)', vendor: 'DataWorks Plus', impact: 'Porcha Woodruff: Wrongfully jailed for 11 hours based on FRT match.', color: '#ef4444', url: 'https://innocenceproject.org/news/when-artificial-intelligence-gets-it-wrong/' },
-                { lat: 42.3350, lon: -83.0400, city: 'Detroit, MI (Oliver)', status: 'WRONGFUL ARREST (2020)', vendor: 'DataWorks Plus', impact: 'Michael Oliver: Wrongfully arrested in front of his family.', color: '#ef4444', url: 'https://www.youtube.com/watch?v=S9oQa9GqNyI' },
-                { lat: 40.5489, lon: -74.2818, city: 'Woodbridge, NJ', status: 'WRONGFUL ARREST (2019)', vendor: 'Clearview AI (Police Use)', impact: 'Nijeer Parks: Wrongfully charged with attempted carjacking after false FRT match.', color: '#ef4444', url: 'https://www.aclu.org/court-cases/parks-v-mccormac' },
-                { lat: 29.7604, lon: -95.3698, city: 'Houston, TX', status: 'WRONGFUL ARREST (2022)', vendor: "Macy's/Sunglass Hut FRT", impact: 'Harvey Murphy Jr.: Wrongfully jailed for 2 weeks based on retailer FRT data.', color: '#ef4444', url: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/' },
-                { lat: 38.6270, lon: -90.1994, city: 'St. Louis, MO', status: 'WRONGFUL ARREST (2025)', vendor: 'Unknown', impact: 'Christopher Galtin: Jailed after misidentification, despite simple alibi.', color: '#ef4444', url: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms' },
-                { lat: 25.7617, lon: -80.1918, city: 'Miami, FL', status: 'WRONGFUL ARREST (2025)', vendor: 'Unknown', impact: 'Jason Vernau: Wrongfully arrested after police over-relied on FRT match.', color: '#ef4444', url: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms' },
-                { lat: 33.7490, lon: -84.3880, city: 'Atlanta, GA', status: 'WRONGFUL ARREST (2022)', vendor: 'Unknown', impact: 'Randal Reid: Wrongfully arrested in Georgia on a warrant for a crime in Louisiana.', color: '#ef4444', url: 'https://www.theguardian.com/technology/2022/dec/01/randal-reid-wrongfully-arrested-facial-recognition' },
-                { lat: 39.2904, lon: -76.6122, city: 'Baltimore, MD (Sawyer)', status: 'WRONGFUL ARREST', vendor: 'Unknown', impact: 'Alonzo Sawyer: One of 7 Black people known to be falsely arrested by FRT.', color: '#ef4444', url: 'https://capitalbnews.org/facial-recognition-wrongful-arrests/' },
-                { lat: 40.7128, lon: -74.0060, city: 'New York, NY (Bah)', status: 'WRONGFUL ARREST (2018)', vendor: 'Apple Store FRT', impact: 'Ousmane Bah: Sued Apple after misidentification led to wrongful arrest.', color: '#ef4444', url: 'https://capitalbnews.org/facial-recognition-wrongful-arrests/' },
-                // --- 5 New Wrongful Arrest Cases ---
-                { lat: 41.8781, lon: -87.6298, city: 'Chicago, IL', status: 'WRONGFUL ARREST (2021)', vendor: 'ShotSpotter/CPD', impact: 'Michael Williams: Jailed for murder based on flawed acoustic surveillance (ShotSpotter) evidence.', color: '#ef4444', url: 'https://innocenceproject.org/news/when-artificial-intelligence-gets-it-wrong/' },
-                { lat: 30.0000, lon: -90.0000, city: 'New Orleans, LA', status: 'WRONGFUL ARREST (2021)', vendor: 'Clearview AI', impact: 'Police use of Clearview led to a documented wrongful arrest, details often suppressed.', color: '#ef4444', url: 'https://www.aclu.org/news/topic/stopping-face-recognition-surveillance' },
-                { lat: 33.4484, lon: -112.0740, city: 'Phoenix, AZ', status: 'WRONGFUL ARREST (2024)', vendor: 'Unknown', impact: 'Lawsuit filed against police for wrongful detention based on FRT match.', color: '#ef4444', url: 'https://www.azcentral.com/story/news/local/phoenix/2024/05/29/phoenix-police-face-lawsuit-over-facial-recognition-arrest/73872580007/' },
-                { lat: 40.7306, lon: -73.9352, city: 'Brooklyn, NY', status: 'WRONGFUL ARREST (2024)', vendor: 'NYPD FRT', impact: 'Man wrongfully accused of assault after a low-quality FRT match.', color: '#ef4444', url: 'https://nypost.com/2024/02/14/metro/nyc-man-sues-city-over-wrongful-arrest-based-on-faulty-nypd-facial-recognition/' },
-                { lat: 38.9000, lon: -77.0100, city: 'Washington, D.C.', status: 'WRONGFUL ARREST (2021)', vendor: 'MPD FRT', impact: 'Wrongful arrest case involving D.C. police use of FRT against a teenager.', color: '#ef4444', url: 'https://www.washingtonpost.com/local/public-safety/facial-recognition-false-match-arrest/2021/08/17/97c3b246-ff06-11eb-98da-9040003953e3_story.html' },
-
-                // ----------------------------------------------------
-                // 2. COMMERCIAL / RETAIL ABUSE (ORANGE) - 15 CASES
-                // ----------------------------------------------------
-                { lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', status: 'COMMERCIAL ABUSE', vendor: 'Rite Aid (Multiple Vendors)', impact: 'FTC Ban: Retailer misidentified customers (esp. PoC) as shoplifters.', color: '#f97316', url: 'https://www.theguardian.com/technology/2023/dec/20/rite-aid-shoplifting-facial-recognition-ftc-settlement' },
-                { lat: 39.9526, lon: -75.1652, city: 'Philadelphia, PA', status: 'COMMERCIAL ABUSE', vendor: 'Rite Aid (Multiple Vendors)', impact: 'FTC Ban: Retailer misidentified customers (esp. PoC) as shoplifters.', color: '#f97316', url: 'https://www.theguardian.com/technology/2023/dec/20/rite-aid-shoplifting-facial-recognition-ftc-settlement' },
-                { lat: 47.6062, lon: -122.3321, city: 'Seattle, WA', status: 'COMMERCIAL ABUSE', vendor: 'Rite Aid (Multiple Vendors)', impact: 'FTC Ban: Retailer misidentified customers (esp. PoC) as shoplifters.', color: '#f97316', url: 'https://www.theguardian.com/technology/2023/dec/20/rite-aid-shoplifting-facial-recognition-ftc-settlement' },
-                { lat: 38.5816, lon: -121.4944, city: 'Sacramento, CA', status: 'COMMERCIAL ABUSE', vendor: 'Rite Aid (Multiple Vendors)', impact: 'FTC Ban: Retailer misidentified customers (esp. PoC) as shoplifters.', color: '#f97316', url: 'https://www.theguardian.com/technology/2023/dec/20/rite-aid-shoplifting-facial-recognition-ftc-settlement' },
-                { lat: 30.2672, lon: -97.7431, city: 'Austin, TX', status: 'COMMERCIAL ABUSE', vendor: 'Clearview AI', impact: 'City use of Clearview AI under intense scrutiny and public opposition.', color: '#f97316', url: 'https://www.aclu.org/court-cases/aclu-v-clearview-ai' },
-                // --- 10 New Commercial/Retail Abuse Cases ---
-                { lat: 40.7500, lon: -73.9930, city: 'NYC (Madison Sq. Garden)', status: 'PRIVATE BANNED LIST', vendor: 'MSG/Sphere Entertainment', impact: 'Attorney sued for using FRT to ban legal opponents from venue.', color: '#f97316', url: 'https://www.theguardian.com/us-news/2023/feb/08/madison-square-garden-facial-recognition-technology-attorney' },
-                { lat: 41.8820, lon: -87.6230, city: 'Chicago, IL (BIPA)', status: 'PRIVATE SETTLEMENT', vendor: 'Facebook', impact: 'Major BIPA class action settlement over collecting faceprints without consent.', color: '#f97316', url: 'https://iapp.org/news/a/aclu-files-class-action-vs-clearview-ai-under-biometric-privacy-law' },
-                { lat: 32.7767, lon: -96.7970, city: 'Dallas, TX', status: 'COMMERCIAL ABUSE', vendor: 'Sunglass Hut', impact: 'Retailer involved in misidentification leading to wrongful arrest in Houston.', color: '#f97316', url: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/' },
-                { lat: 40.7550, lon: -73.9850, city: 'NYC (Macy\'s Herald Sq.)', status: 'COMMERCIAL ABUSE', vendor: 'Macy\'s', impact: 'Retailer relied on faulty FRT that led to Harvey Murphy Jr.\'s wrongful arrest.', color: '#f97316', url: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/' },
-                { lat: 37.7833, lon: -122.4167, city: 'San Francisco, CA (BIPA)', status: 'PRIVATE SETTLEMENT', vendor: 'Clearview AI', impact: 'Settlement restricts Clearview from selling data to most private entities nationwide.', color: '#f97316', url: 'https://www.aclu.org/cases/aclu-v-clearview-ai' },
-                { lat: 37.4419, lon: -122.1430, city: 'Palo Alto, CA', status: 'DATA SCRAPING', vendor: 'Clearview AI', impact: 'Company scraped billions of images from social media without consent.', color: '#f97316', url: 'https://www.eff.org/deeplinks/2020/02/aclu-files-class-action-lawsuit-against-clearview-ai' },
-                { lat: 40.0000, lon: -75.1200, city: 'Camden, NJ', status: 'COMMUNITY CHALLENGE', vendor: 'CCTV/FRT System', impact: 'Civil rights groups challenge police surveillance program in court.', color: '#f97316', url: 'https://www.aclu-nj.org/en/cases/aclu-nj-v-camden-police-department' },
-                { lat: 42.3601, lon: -71.0589, city: 'Boston, MA (Clearview)', status: 'PRIVATE DATA USE', vendor: 'Clearview AI', impact: 'Police use of Clearview AI discovered without public knowledge or policy.', color: '#f97316', url: 'https://www.aclum.org/en/cases/aclu-massachusetts-v-boston-police-department-clearview-ai' },
-                { lat: 34.0000, lon: -118.2500, city: 'Los Angeles, CA (Schools)', status: 'SCHOOL SURVEILLANCE', vendor: 'Various FRT', impact: 'Widespread, unregulated deployment of FRT in school districts raises student privacy fears.', color: '#f97316', url: 'https://www.eff.org/deeplinks/2020/02/eff-sues-school-district-over-facial-recognition' },
-                { lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA (ALPR)', status: 'PRIVATE SURVEILLANCE', vendor: 'Flock Safety', impact: 'Private ALPR cameras feed data to police, circumventing city bans.', color: '#f97316', url: 'https://www.eff.org/deeplinks/2021/04/flock-safety-makes-mass-surveillance-easy' },
-
-                // ----------------------------------------------------
-                // 3. MASS SURVEILLANCE / LEGAL CHALLENGE (BLUE) - 20 CASES
-                // ----------------------------------------------------
-                { lat: 39.2800, lon: -76.6200, city: 'Baltimore, MD (Protests)', status: 'MASS SURVEILLANCE (2015)', vendor: 'BPD/Aerial', impact: 'Used aerial and FRT tracking to identify Freddie Gray protesters.', color: '#2563eb', url: 'https://www.brookings.edu/articles/police-surveillance-and-facial-recognition-why-data-privacy-is-an-imperative-for-communities-of-color/' },
-                { lat: 37.3382, lon: -121.8863, city: 'San Jose, CA', status: 'ALPR SURVEILLANCE (2025)', vendor: 'Flock/ALPR', impact: 'Lawsuit challenges warrantless license plate reader mass surveillance.', color: '#2563eb', url: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms' },
-                { lat: 41.8781, lon: -87.6298, city: 'Chicago, IL (BIPA)', status: 'BIPA CHALLENGE (2020)', vendor: 'Clearview AI', impact: 'ACLU suit settled, establishing strict limits on private biometric collection.', color: '#2563eb', url: 'https://www.aclu.org/court-cases/aclu-v-clearview-ai' },
-                { lat: 38.8951, lon: -77.0369, city: 'Washington, D.C.', status: 'FEDERAL RISK (2018)', vendor: 'Amazon Rekognition', impact: 'ACLU test falsely matched 28 members of Congress to mugshots.', color: '#2563eb', url: 'https://www.aclu.org/news/privacy-technology/amazons-face-recognition-falsely-matched-28' },
-                { lat: 27.9475, lon: -82.4586, city: 'Tampa, FL', status: 'CHILLING EFFECT (2017)', vendor: 'Unknown', impact: 'FRT deployed at Super Bowl for mass scanning; criticized for chilling effect.', color: '#2563eb', url: 'https://capitalbnews.org/facial-recognition-wrongful-arrests/' },
-                // --- 15 New Mass Surveillance/Legal Challenge Cases ---
-                { lat: 40.7128, lon: -74.0060, city: 'New York, NY (NYPD FRT)', status: 'PROTEST SURVEILLANCE', vendor: 'NYPD FRT/Clearview', impact: 'NYPD used FRT to track BLM protesters and social media critics (2020).', color: '#2563eb', url: 'https://www.amnesty.org/en/latest/news/2025/11/amnesty-and-s-t-o-p-reveal-nypd-surveillance-abuses/' },
-                { lat: 37.3541, lon: -121.9552, city: 'Santa Clara, CA', status: 'SURVEILLANCE BAN', vendor: 'Various', impact: 'City Council passed a moratorium on surveillance technology deployment (2019).', color: '#2563eb', url: 'https://www.mercurynews.com/2019/08/21/santa-clara-passes-surveillance-technology-moratorium-police-frustrated/' },
-                { lat: 39.7392, lon: -104.9903, city: 'Denver, CO', status: 'POLICE USE CHALLENGE', vendor: 'Unknown', impact: 'Community challenge over Denver PD use of Clearview AI without public knowledge.', color: '#2563eb', url: 'https://www.aclu-co.org/en/press-releases/denver-police-department-used-clearview-ai-facial-recognition-technology-without' },
-                { lat: 40.7851, lon: -73.9683, city: 'NYC (Derrick Ingram)', status: 'PROTESTER TARGETING', vendor: 'NYPD FRT', impact: 'Black Lives Matter activist targeted and apartment besieged after FRT identification.', color: '#2563eb', url: 'https://banthescan.amnesty.org/decode/index.html' },
-                { lat: 47.6000, lon: -122.3330, city: 'Seattle, WA (Legal)', status: 'LEGAL SCRUTINY', vendor: 'CCTV/RTCC', impact: 'City Council issued assessment on how CCTV/FRT could violate Fourth Amendment (2024).', color: '#2563eb', url: 'https://www.seattle.gov/documents/Departments/SAWG/SAWG%20Documents%202024/CSWG%20Privacy%20and%20Civil%20Liberties%20Assessment_%20CCTV%20%26%20RTCC.docx.pdf' },
-                { lat: 33.7490, lon: -84.3880, city: 'Atlanta, GA (Surv.)', status: 'DATA LEGISLATION GAP', vendor: 'Unknown', impact: 'ACLU challenges Georgia for having no state protections for biometric data.', color: '#2563eb', url: 'https://www.acluga.org/issues/speech-and-privacy/' },
-                { lat: 44.8945, lon: -93.3090, city: 'Minneapolis, MN', status: 'FRT BAN', vendor: 'Various', impact: 'City council banned the use of facial recognition by the police department (2021).', color: '#2563eb', url: 'https://www.aclu-mn.org/en/news/minneapolis-city-council-bans-facial-recognition' },
-                { lat: 42.9634, lon: -85.6681, city: 'Grand Rapids, MI', status: 'FRT BAN', vendor: 'Various', impact: 'First city in Michigan to ban FRT by government agencies (2020).', color: '#2563eb', url: 'https://www.aclu.org/news/technology-and-liberty/grand-rapids-michigan-first-city-state-ban-use-facial-recognition' },
-                { lat: 40.8136, lon: -73.9602, city: 'NYC (Harlem)', status: 'FRT DATA GAP', vendor: 'NYPD FRT', impact: 'ACLU found FRT is disproportionately deployed in areas with high stop-and-frisk rates.', color: '#2563eb', url: 'https://banthescan.amnesty.org/decode/index.html' },
-                { lat: 38.8951, lon: -77.0369, city: 'Washington, D.C. (2021)', status: 'FRT BAN (Temporary)', vendor: 'MPD', impact: 'D.C. Council voted to ban police use of FRT for one year (2021).', color: '#2563eb', url: 'https://www.washingtonpost.com/local/dc-council-bans-police-use-of-facial-recognition/2021/11/02/766f654a-3c13-11ec-a493-51b026602377_story.html' },
-                { lat: 35.7796, lon: -78.6382, city: 'Raleigh, NC', status: 'FEDERAL USE CHALLENGE', vendor: 'DOJ/FBI/DEA', impact: 'ACLU lawsuit demands transparency on how federal agencies use FRT.', color: '#2563eb', url: 'https://www.aclu.org/court-cases/aclu-v-doj-fbi-dea' },
-                { lat: 40.8240, lon: -73.8648, city: 'Bronx, NY', status: 'FRT SCANNING', vendor: 'NYPD FRT', impact: 'One of the NYC boroughs with the highest exposure to facial recognition surveillance.', color: '#2563eb', url: 'https://banthescan.amnesty.org/decode/index.html' },
-                { lat: 38.5816, lon: -121.4944, city: 'Sacramento, CA (SMUD)', status: 'SMART METER SURV.', vendor: 'SMUD/Police', impact: 'Court victory ends dragnet surveillance program using smart meter data (2025).', color: '#2563eb', url: 'https://www.eff.org/deeplinks/2025/11/victory-court-end-dragnet-electricity-surveillance-program-sacramento' },
-                { lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA (Clearview)', status: 'CLEARVIEW USE', vendor: 'Clearview AI', impact: 'LAPD admitted to using Clearview AI, raising privacy concerns.', color: '#2563eb', url: 'https://www.latimes.com/california/story/2020-05-18/lapd-officers-used-facial-recognition-app-clearview-ai' },
-                { lat: 42.3314, lon: -83.0458, city: 'Detroit, MI (Drone)', status: 'DRONE SURVEILLANCE', vendor: 'DPD Drone', impact: 'Used drones for aerial surveillance, prompting ACLU legal challenge.', color: '#2563eb', url: 'https://www.aclumich.org/en/cases/aclu-michigan-v-detroit-police-department-drone' },
-                { lat: 44.7500, lon: -85.6000, city: 'Long Lake Twp, MI', status: 'DRONE SURVEILLANCE', vendor: 'Local Gov Drone', impact: 'Michigan Supreme Court case challenging government drone aerial photography of private property.', color: '#2563eb', url: 'https://www.aclu.org/court-cases/long-lake-township-v-maxon' },
-                { lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA (ALPR)', status: 'ALPR TRANSPARENCY', vendor: 'Flock Safety', impact: 'Court ruled Flock ALPR data is a public record, fighting secrecy (2025).', color: '#2563eb', url: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms' },
-                { lat: 40.7128, lon: -74.0060, city: 'New York, NY (POST Act)', status: 'SURVEILLANCE TRANSPARENCY', vendor: 'NYPD', impact: 'Lawsuit demands disclosure of NYPD surveillance technology policies.', color: '#2563eb', url: 'https://www.aclu.org/cases/nyclu-v-nypd-post-act' },
-                { lat: 39.0000, lon: -95.6650, city: 'Topeka, KS', status: 'FEDERAL SURVEILLANCE', vendor: 'Unknown', impact: 'Ongoing case challenging long-term, continuous video surveillance of a person\'s home (United States v. Hay).', color: '#2563eb', url: 'https://www.aclu.org/court-cases/united-states-v-hay' }
+                { lat: 42.3314, lon: -83.0458, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Robert Williams Wrongful Arrest (2020)', link: 'https://www.aclu.org/cases/williams-v-city-of-detroit-face-recognition-false-arrest', color: 'red' },
+                { lat: 42.3314, lon: -83.0459, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Porcha Woodruff Wrongful Arrest (2022)', link: 'https://www.innocenceproject.org/cases/porcha-woodruff/', color: 'red' },
+                { lat: 42.3314, lon: -83.0460, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Michael Oliver Wrongful Arrest (2020)', link: 'https://www.freep.com/story/news/local/michigan/detroit/2020/07/15/detroit-facial-recognition-misidentification-michael-oliver/5431690002/', color: 'red' },
+                { lat: 40.8203, lon: -74.0049, city: 'Newark, NJ', type: 'Wrongful Arrest', title: 'Nijeer Parks Wrongful Arrest (2019)', link: 'https://www.aclu-nj.org/en/cases/parks-v-city-newark', color: 'red' },
+                { lat: 30.0467, lon: -92.0198, city: 'Lafayette, LA', type: 'Wrongful Arrest', title: 'Randal Reid Wrongful Arrest (2022)', link: 'https://www.nytimes.com/2022/08/04/technology/facial-recognition-false-arrest-randal-reid.html', color: 'red' },
+                { lat: 32.7767, lon: -96.7970, city: 'Dallas, TX', type: 'Wrongful Arrest', title: 'Harvey Murphy Jr. Wrongful Detention (2022)', link: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/', color: 'red' },
+                { lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA', type: 'Mass Surveillance', title: 'SFPD Use of Live Feeds in Protest (2020)', link: 'https://www.eff.org/deeplinks/2022/09/victory-san-francisco-supervisors-reject-sfpds-attempt-roll-back-surveillance-limits', color: 'blue' },
+                { lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'Mass Surveillance', title: 'NYPD Surveillance of BLM Protesters (2020)', link: 'https://www.amnesty.org/en/latest/news/2025/11/amnesty-and-s-t-o-p-reveal-nypd-surveillance-abuses/', color: 'blue' },
+                { lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Commercial Abuse', title: 'Rite Aid False Positives (2012-2020)', link: 'https://www.ftc.gov/news-events/news/press-releases/2023/12/rite-aid-banned-using-ai-facial-recognition-after-ftc-says-retailer-deployed-technology-without', color: 'yellow' },
+                { lat: 34.0522, lon: -118.2438, city: 'Los Angeles, CA', type: 'Commercial Abuse', title: 'Clearview AI BIPA Lawsuit Settlement (2022)', link: 'https://www.aclu.org/cases/aclu-v-clearview-ai', color: 'yellow' },
+                { lat: 34.0522, lon: -118.2439, city: 'Los Angeles, CA', type: 'Commercial Abuse', title: 'Macy\'s/Sunglass Hut False Accusations (2022)', link: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/', color: 'yellow' },
+                { lat: 41.8781, lon: -87.6298, city: 'Chicago, IL', type: 'Commercial Abuse', title: 'ACLU v. Clearview AI Class Action (2020)', link: 'https://www.aclu-il.org/en/cases/aclu-v-clearview-ai', color: 'yellow' },
+                { lat: 40.7128, lon: -74.0061, city: 'New York, NY', type: 'Mass Surveillance', title: 'Madison Square Garden Ban on Lawyers (2023)', link: 'https://www.nytimes.com/2023/02/09/nyregion/madison-square-garden-facial-recognition-lawyers.html', color: 'blue' },
+                { lat: 38.9072, lon: -77.0369, city: 'Washington, D.C.', type: 'Mass Surveillance', title: 'ACLU Test Fails 28 Congress Members (2018)', link: 'https://www.aclu.org/news/privacy-technology/amazons-face-recognition-falsely-matched-28', color: 'blue' },
+                { lat: 39.2904, lon: -76.6122, city: 'Baltimore, MD', type: 'Mass Surveillance', title: 'Police Aerial Surveillance Ruling (2021)', link: 'https://www.theatlantic.com/ideas/archive/2021/05/baltimore-police-aerial-surveillance-fourth-amendment/618919/', color: 'blue' },
+                { lat: 37.7749, lon: -122.4195, city: 'San Francisco, CA', type: 'Mass Surveillance', title: 'ALPR Mass Surveillance Lawsuit (2025)', link: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms', color: 'blue' },
+                { lat: 37.7749, lon: -122.4196, city: 'San Francisco, CA', type: 'Mass Surveillance', title: 'Banned FRT in Government Use (2019)', link: 'https://www.npr.org/2019/05/14/723117491/san-francisco-bans-facial-recognition-technology', color: 'blue' },
+                { lat: 36.1699, lon: -115.1398, city: 'Las Vegas, NV', type: 'Wrongful Arrest', title: 'Alonzo Sawyer Wrongful Arrest (2023)', link: 'https://www.washingtonpost.com/technology/2023/08/10/facial-recognition-las-vegas-false-arrest/', color: 'red' },
+                { lat: 39.7392, lon: -104.9903, city: 'Denver, CO', type: 'Mass Surveillance', title: 'Denver Use of Real-Time FRT by Police (Ongoing)', link: 'https://www.aclu.org/news/technology-and-liberty/denver-cops-want-to-use-real-time-facial-recognition-surveillance', color: 'blue' },
+                { lat: 47.6062, lon: -122.3321, city: 'Seattle, WA', type: 'Mass Surveillance', title: 'Seattle FRT Ban (2020)', link: 'https://www.aclu-wa.org/news/seattle-city-council-bans-government-use-facial-recognition-technology-protect-civil-rights', color: 'blue' },
+                { lat: 40.7128, lon: -74.0059, city: 'New York, NY', type: 'Mass Surveillance', title: 'NYPD FRT Use in Protests Lawsuit (2021)', link: 'https://www.eff.org/deeplinks/2021/10/nypds-dangerous-use-facial-recognition-technology-must-end', color: 'blue' },
+                { lat: 33.7490, lon: -84.3880, city: 'Atlanta, GA', type: 'Mass Surveillance', title: 'Atlanta Public Safety Training Center Surveillance (Ongoing)', link: 'https://www.aclu.org/news/racial-justice/stop-cop-city-and-surveillance-in-atlanta', color: 'blue' },
+                { lat: 34.0522, lon: -118.2436, city: 'Los Angeles, CA', type: 'Mass Surveillance', title: 'LAPD Surveillance Expansion Debate (Ongoing)', link: 'https://www.latimes.com/california/story/2023-08-16/lapd-surveillance-technology-aclu', color: 'blue' },
+                { lat: 40.7128, lon: -74.0058, city: 'New York, NY', type: 'Commercial Abuse', title: 'Ousmane Bah v. Apple (False Arrest, 2018)', link: 'https://www.nytimes.com/2019/02/09/nyregion/apple-facial-recognition-lawsuit.html', color: 'yellow' },
+                { lat: 32.7767, lon: -96.7969, city: 'Dallas, TX', type: 'Wrongful Arrest', title: 'Anonymous Texas Man Wrongful Arrest (2023)', link: 'https://www.washingtonpost.com/technology/2023/08/10/facial-recognition-false-arrest-dallas/', color: 'red' },
+                { lat: 41.8781, lon: -87.6299, city: 'Chicago, IL', type: 'Commercial Abuse', title: 'BIPA Lawsuits Against Tech Companies (Ongoing)', link: 'https://www.eff.org/issues/biometric-privacy', color: 'yellow' },
+                { lat: 40.8203, lon: -74.0048, city: 'Newark, NJ', type: 'Mass Surveillance', title: 'Newark FRT Ban (2020)', link: 'https://www.aclu-nj.org/en/news/newark-new-jersey-passes-historic-ban-police-use-facial-recognition-technology', color: 'blue' },
+                { lat: 42.3601, lon: -71.0589, city: 'Boston, MA', type: 'Mass Surveillance', title: 'Boston FRT Ban (2020)', link: 'https://www.aclu.org/news/technology-and-liberty/boston-bans-government-use-of-face-surveillance', color: 'blue' },
+                { lat: 45.5051, lon: -122.6750, city: 'Portland, OR', type: 'Mass Surveillance', title: 'Portland Ban on FRT by City and Private Use (2020)', link: 'https://www.eff.org/deeplinks/2020/09/portland-passes-most-comprehensive-facial-recognition-ban-us', color: 'blue' },
+                { lat: 39.9526, lon: -75.1652, city: 'Philadelphia, PA', type: 'Mass Surveillance', title: 'FRT Use during 2020 Protests (ACLU concern)', link: 'https://www.aclu.org/news/technology-and-liberty/aclu-pa-sues-philadelphia-police-department-over-use-of-facial-recognition', color: 'blue' },
+                { lat: 44.9778, lon: -93.2650, city: 'Minneapolis, MN', type: 'Mass Surveillance', title: 'Minneapolis FRT Ban (2021)', link: 'https://www.aclu-mn.org/en/press-releases/minneapolis-city-council-approves-ban-facial-recognition-technology', color: 'blue' },
+                { lat: 33.4484, lon: -112.0740, city: 'Phoenix, AZ', type: 'Mass Surveillance', title: 'Phoenix Police Deployment of FRT (Ongoing)', link: 'https://www.acluaz.org/en/news/phoenix-police-must-stop-and-disclose-its-use-face-surveillance-technology', color: 'blue' },
+                { lat: 40.7128, lon: -74.0057, city: 'New York, NY', type: 'Wrongful Arrest', title: 'NYPD Surveillance of Activist Derrick Ingram (2020)', link: 'https://www.aclu.org/news/technology-and-liberty/police-besieged-activists-home-after-using-facial-recognition', color: 'red' },
+                { lat: 38.6270, lon: -90.1994, city: 'St. Louis, MO', type: 'Wrongful Arrest', title: 'Christopher Galtin Wrongful Arrest (2024)', link: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms', color: 'red' },
+                { lat: 25.7617, lon: -80.1918, city: 'Miami, FL', type: 'Wrongful Arrest', title: 'Jason Vernau Wrongful Arrest (2024)', link: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms', color: 'red' },
+                { lat: 34.0522, lon: -118.2440, city: 'Los Angeles, CA', type: 'Commercial Abuse', title: 'Amazon Sidewalk Ring Camera Privacy Concerns (2021)', link: 'https://www.aclu.org/news/privacy-technology/amazon-sidewalk-is-a-threat-to-privacy-and-security', color: 'yellow' },
+                { lat: 32.7767, lon: -96.7971, city: 'Dallas, TX', type: 'Mass Surveillance', title: 'Flock Safety ALPR Deployment (Ongoing)', link: 'https://www.aclu.org/news/privacy-technology/flock-safety-is-building-a-mass-surveillance-network', color: 'blue' },
+                { lat: 30.2672, lon: -97.7431, city: 'Austin, TX', type: 'Mass Surveillance', title: 'ACLU Challenge to Austin Police Surveillance (Ongoing)', link: 'https://www.aclutx.org/en/cases/aclu-v-city-austin', color: 'blue' },
+                { lat: 33.7490, lon: -84.3879, city: 'Atlanta, GA', type: 'Mass Surveillance', title: 'ShotSpotter Use in City (Ongoing)', link: 'https://www.eff.org/deeplinks/2021/04/shotspotter-wrongful-conviction-case-must-be-re-opened', color: 'blue' },
+                { lat: 39.7684, lon: -86.1580, city: 'Indianapolis, IN', type: 'Mass Surveillance', title: 'Police Drone Surveillance Program (2023)', link: 'https://www.aclu.org/news/technology-and-liberty/indianapolis-police-drone-program', color: 'blue' },
+                { lat: 40.7128, lon: -74.0056, city: 'New York, NY', type: 'Commercial Abuse', title: 'Use of Biometric Scans in Residential Buildings (2023)', link: 'https://www.eff.org/deeplinks/2023/10/new-york-city-council-introduces-bill-ban-biometric-surveillance-apartments', color: 'yellow' },
+                { lat: 40.7128, lon: -74.0055, city: 'New York, NY', type: 'Commercial Abuse', title: 'Brooklyn Nets Arena Biometric Ticket Entry (Ongoing)', link: 'https://www.aclu.org/news/privacy-technology/brooklyn-nets-biometric-ticket-entry', color: 'yellow' },
+                { lat: 41.8781, lon: -87.6297, city: 'Chicago, IL', type: 'Commercial Abuse', title: 'BIPA Lawsuit - White Castle (2023)', link: 'https://www.eff.org/deeplinks/2023/02/illinois-supreme-court-rules-bipa-damages-can-be-massive-wake-call-companies-violating', color: 'yellow' },
+                { lat: 39.9526, lon: -75.1651, city: 'Philadelphia, PA', type: 'Wrongful Arrest', title: 'Philadelphia Man Falsely Identified (2023)', link: 'https://www.aclu.org/news/technology-and-liberty/another-man-falsely-identified-by-facial-recognition', color: 'red' },
+                { lat: 40.7128, lon: -74.0054, city: 'New York, NY', type: 'Mass Surveillance', title: 'Times Square Biometric Surveillance Zone (Ongoing)', link: 'https://www.eff.org/deeplinks/2023/07/new-york-city-outlaws-anonymous-public-life-times-square', color: 'blue' },
+                { lat: 47.6062, lon: -122.3320, city: 'Seattle, WA', type: 'Mass Surveillance', title: 'ACLU Challenge to Police Body Camera FRT (2018)', link: 'https://www.aclu-wa.org/news/seattle-police-use-facial-recognition-body-cameras', color: 'blue' },
+                { lat: 34.0522, lon: -118.2435, city: 'Los Angeles, CA', type: 'Mass Surveillance', title: 'Airport Biometric Exit Scans (Ongoing)', link: 'https://www.aclu.org/news/privacy-technology/us-airports-are-scanning-your-face-to-leave-the-country', color: 'blue' },
+                { lat: 38.8951, lon: -77.0364, city: 'Washington, D.C.', type: 'Mass Surveillance', title: 'D.C. FRT Ban (2020)', link: 'https://www.aclu.org/news/technology-and-liberty/dc-council-unanimously-passes-facial-recognition-ban-and-other-surveillance-reform', color: 'blue' },
+                { lat: 37.7749, lon: -122.4193, city: 'San Francisco, CA', type: 'Commercial Abuse', title: 'Landlord Biometric Access Control Dispute (2022)', link: 'https://www.eff.org/deeplinks/2022/11/san-francisco-residents-sue-landlord-over-biometric-access-control', color: 'yellow' },
+                { lat: 39.7684, lon: -86.1581, city: 'Indianapolis, IN', type: 'Wrongful Arrest', title: 'Indianapolis Man Wrongfully Detained (2021)', link: 'https://www.indystar.com/story/news/2021/09/20/facial-recognition-technology-leads-wrongful-arrest-indianapolis-man/8404229002/', color: 'red' },
+                { lat: 34.0522, lon: -118.2434, city: 'Los Angeles, CA', type: 'Mass Surveillance', title: 'LA County Sheriff Deployment of FRT (2023)', link: 'https://www.eff.org/deeplinks/2023/12/la-county-sheriffs-surveillance-program-risks-massive-privacy-violations', color: 'blue' },
+                { lat: 30.2672, lon: -97.7430, city: 'Austin, TX', type: 'Wrongful Arrest', title: 'Austin Police Misuse of FRT (2022)', link: 'https://www.aclutx.org/en/press-releases/aclu-texas-austin-police-department-reached-agreement-police-face-recognition', color: 'red' },
+                { lat: 40.7128, lon: -74.0053, city: 'New York, NY', type: 'Commercial Abuse', title: 'Times Square Businesses Using FRT (Ongoing)', link: 'https://www.eff.org/deeplinks/2023/07/new-york-city-outlaws-anonymous-public-life-times-square', color: 'yellow' }
             ];
 
-            // Function to create a custom icon with a color
-            const getCustomIcon = (color) => {
-                // Since the body is permanently dark, the border is set to match the body background for contrast
-                const borderColor = '#1f2937'; 
-                
-                return L.divIcon({
+            // Create markers and add to cluster group
+            deploymentData.forEach(function(item) {
+                let colorClass;
+                if (item.color === 'red') {
+                    colorClass = 'bg-red-600';
+                } else if (item.color === 'yellow') {
+                    colorClass = 'bg-yellow-600';
+                } else {
+                    colorClass = 'bg-blue-600';
+                }
+
+                // Custom icon for a little more style
+                var customIcon = L.divIcon({
                     className: 'custom-div-icon',
-                    html: `<div style="background-color: ${color}; width: 1.5rem; height: 1.5rem; border-radius: 50%; border: 3px solid ${borderColor}; box-shadow: 0 0 5px rgba(0,0,0,0.5);"></div>`,
-                    iconSize: [24, 24],
-                    iconAnchor: [12, 24] // Centers the pin bottom
+                    html: `<div class="p-1 rounded-full ${colorClass} shadow-xl transform transition duration-200 hover:scale-125" style="width: 1rem; height: 1rem;"></div>`,
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
                 });
-            };
 
-            // Add markers to the cluster group
-            deploymentData.forEach(data => {
-                // Determine the pin color based on the data category
-                const color = data.color;
-                const icon = getCustomIcon(color);
-
-                const popupContent = `
-                    <div class="font-sans text-gray-900">
-                        <h4 class="text-lg font-bold mb-1">${data.city}</h4>
-                        <p class="text-sm"><strong>Type:</strong> ${data.status.split('(')[0]}</p>
-                        <p class="text-sm"><strong>System/Vendor:</strong> ${data.vendor}</p>
-                        <p class="text-sm mt-2">${data.impact}</p>
-                        <a href="${data.url}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium mt-1 inline-block">Read Full Article &rarr;</a>
+                var popupContent = `
+                    <div class="font-sans text-gray-900 dark:text-gray-900">
+                        <h4 class="text-lg font-bold mb-1">${item.title}</h4>
+                        <p class="text-sm mb-2"><strong>Location:</strong> ${item.city}</p>
+                        <p class="text-xs mb-3"><strong>Category:</strong> ${item.type}</p>
+                        <a href="${item.link}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800 font-semibold underline">Read the Full Article &rarr;</a>
                     </div>
                 `;
 
-                // Create the marker and add it to the cluster group
-                L.marker([data.lat, data.lon], { icon: icon })
-                    .bindPopup(popupContent)
-                    .addTo(markers); // Add to the marker cluster group
+                var marker = L.marker([item.lat, item.lon], { icon: customIcon })
+                    .bindPopup(popupContent);
+
+                markers.addLayer(marker);
             });
-            
-            // Add all the markers in the cluster group to the map
+
             map.addLayer(markers);
         });
     </script>
