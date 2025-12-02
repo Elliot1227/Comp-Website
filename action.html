@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action Center: Contact Your Representative</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* General dark theme application */
+        body {
+            background-color: #1a1a1a;
+            color: #e5e7eb;
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+        }
+        textarea {
+            resize: none;
+            height: 400px;
+            font-family: monospace;
+            line-height: 1.5;
+        }
+        .text-neon {
+            color: #0d9488;
+        }
+    </style>
+</head>
+<body class="p-8">
+
+    <div class="container mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-5xl font-extrabold text-white mb-3">Action Center: Ban the Scan</h1>
+            <p class="text-xl text-gray-400">Use this template to contact your federal or state representatives and demand a prohibition on biometric surveillance.</p>
+        </header>
+
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl">
+            <!-- Input Form for Name -->
+            <div class="mb-6">
+                <label for="rep-name" class="block text-lg font-medium text-gray-300 mb-2">
+                    1. Enter Your Representative's Name or Office Title:
+                </label>
+                <input type="text" id="rep-name" placeholder="E.g., Senator Smith, Representative Jones, or To Whom It May Concern" 
+                       class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-neon focus:border-neon" 
+                       oninput="updateEmail()">
+                <p class="text-sm text-gray-500 mt-2">The text in the email subject and greeting will update automatically.</p>
+            </div>
+
+            <!-- Email Text Area -->
+            <div class="mb-6">
+                <label for="email-content" class="block text-lg font-medium text-gray-300 mb-2">
+                    2. Customizable Email Draft:
+                </label>
+                <textarea id="email-content" class="w-full p-4 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 focus:ring-neon focus:border-neon"></textarea>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button id="copy-button" class="bg-neon hover:bg-teal-600 text-gray-900 font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 transform hover:scale-105">
+                    Copy Email to Clipboard
+                </button>
+                <a href="index.html" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 text-center">
+                    ← Back to Report
+                </a>
+            </div>
+
+            <div id="copy-status" class="mt-4 text-center text-green-500 font-semibold hidden">Copied to clipboard! Now paste it into your email tool.</div>
+        </div>
+    </div>
+
+    <script>
+        const emailContent = document.getElementById('email-content');
+        const repNameInput = document.getElementById('rep-name');
+        const copyButton = document.getElementById('copy-button');
+        const copyStatus = document.getElementById('copy-status');
+
+        const defaultContent = `
+Dear [Representative Name],
+
+I am writing to urge you to support a complete prohibition on the use of biometric surveillance technologies, such as Facial Recognition Technology (FRT), by all law enforcement agencies and government bodies in our jurisdiction.
+
+This technology poses a fundamental threat to civil liberties and public safety:
+
+1.  **Racial Bias and Wrongful Arrest:** FRT is known to have significantly higher error rates for people of color, leading directly to the wrongful detention and traumatization of innocent individuals. The failure rate is not a bug—it is an inherent flaw that amplifies systemic discrimination.
+
+2.  **Constitutional Violation:** Pervasive, constant tracking transforms our public lives into a permanent, searchable record, violating the Fourth Amendment’s guarantee against unreasonable searches. Furthermore, the threat of being perpetually identified creates a chilling effect on the First Amendment rights to free speech and assembly.
+
+3.  **The False Promise of Safety:** Evidence shows that investment in community-based public health measures (like mental health and substance abuse services) is more effective at reducing violent crime than punitive surveillance technology. We must prioritize proven, constitutional solutions over expensive, flawed tools of control.
+
+The risk of error, bias, and the slide toward authoritarian monitoring is simply too high. Regulation is insufficient. The only responsible path forward is a complete ban.
+
+I urge you to take immediate legislative action to ban the scan and protect the constitutional rights of all citizens.
+
+Sincerely,
+
+[Your Name and Address]
+`;
+
+        function updateEmail() {
+            let name = repNameInput.value.trim() || "Representative Name";
+            
+            let subject = name;
+            if (name.toLowerCase().includes('senator') || name.toLowerCase().includes('representative') || name.toLowerCase().includes('congress')) {
+                subject = name;
+            } else if (name === 'To Whom It May Concern') {
+                subject = "The Looming Threat of Biometric Surveillance";
+            } else {
+                subject = name; // If user puts a specific name
+            }
+
+            let greeting = name;
+            if (!name.toLowerCase().includes('dear')) {
+                greeting = `Dear ${name}`;
+            }
+
+            const updatedContent = defaultContent
+                .replace("[Representative Name]", subject)
+                .replace("Dear [Representative Name],", `${greeting},`);
+                
+            emailContent.value = updatedContent;
+        }
+
+        copyButton.addEventListener('click', () => {
+            // Select the text area content
+            emailContent.select();
+            emailContent.setSelectionRange(0, 99999); // For mobile devices
+
+            // Copy the text
+            document.execCommand('copy');
+
+            // Show status message
+            copyStatus.classList.remove('hidden');
+            setTimeout(() => {
+                copyStatus.classList.add('hidden');
+            }, 3000);
+        });
+
+        // Initialize content on load
+        updateEmail();
+    </script>
+</body>
+</html>
