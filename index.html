@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Unseen Record: Ban Biometric Surveillance</title>
+    <title>Ban Biometric Surveillance</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Leaflet CSS for Map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
-    <!-- Leaflet Marker Cluster CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.0/dist/MarkerCluster.Default.css" />
     
     <style>
         /* Essential style to push content below the fixed header */
@@ -31,7 +28,7 @@
         /* Custom styles for the dropdown menu */
         #dropdown-menu {
             transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
-            transform-origin: top;
+            transform-origin: top right;
         }
         /* Ensure primary elements adopt dark theme */
         .bg-white { background-color: #1f2937 !important; }
@@ -85,16 +82,18 @@
     <!-- Fixed Header -->
     <header class="fixed top-0 left-0 right-0 h-20 bg-gray-900 border-b border-gray-700 shadow-xl z-[100] flex items-center justify-between px-6 lg:px-12">
         <h1 class="text-3xl font-extrabold text-red-500">
-            The Unseen Record: Ban Biometric Surveillance
+            Ban Biometric Surveillance
         </h1>
         
-        <!-- Navigation Dropdown -->
+        <!-- Navigation Dropdown (Hamburger Menu) -->
         <div class="relative">
-            <button id="dropdown-toggle" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg shadow-md transition duration-150 ease-in-out flex items-center">
-                Navigate Sections
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+            <button id="dropdown-toggle" class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500">
+                <!-- Hamburger Icon -->
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
             </button>
-            <div id="dropdown-menu" class="absolute right-0 mt-3 w-60 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl opacity-0 invisible translate-y-2">
+            <div id="dropdown-menu" class="absolute right-0 mt-3 w-60 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl opacity-0 invisible translate-y-2 origin-top-right">
                 <a href="#hero" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Looming Threat</a>
                 <a href="#tracker" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Accountability Tracker</a>
                 <a href="#bias-stats" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Algorithmic Bias</a>
@@ -161,6 +160,7 @@
                     <span class="flex items-center text-red-400"><span class="h-3 w-3 rounded-full bg-red-600 mr-2"></span> Wrongful Arrest/Misidentification</span>
                     <span class="flex items-center text-yellow-400"><span class="h-3 w-3 rounded-full bg-yellow-600 mr-2"></span> Commercial/Private Abuse</span>
                     <span class="flex items-center text-blue-400"><span class="h-3 w-3 rounded-full bg-blue-600 mr-2"></span> Mass Surveillance/Legal Challenge</span>
+                    <span class="flex items-center text-green-400"><span class="h-3 w-3 rounded-full bg-green-600 mr-2"></span> Policy Victory / Ban</span>
                 </div>
             </div>
         </section>
@@ -433,9 +433,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
         crossorigin=""></script>
-    <!-- Leaflet Marker Cluster Plugin -->
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Dropdown Menu Logic - CORRECTED ID
@@ -472,118 +470,74 @@
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
 
-            // Initialize Marker Cluster Group
-            const markers = L.markerClusterGroup();
-
-            // 50 Documented Incidents Data
+            // 20 Verified Data Points
             const deploymentData = [
-                {lat: 42.3314, lon: -83.0458, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Robert Williams', link: 'https://www.aclu.org/cases/williams-v-city-of-detroit-face-recognition-false-arrest'},
-                {lat: 42.3314, lon: -83.0450, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Porcha Woodruff', link: 'https://www.aclu.org/news/technology-and-liberty/the-fourth-person-wrongfully-accused-by-face-recognition-is-a-black-woman-and-a-mother'},
-                {lat: 42.3314, lon: -83.0465, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Michael Oliver', link: 'https://www.freep.com/story/news/local/michigan/detroit/2020/07/16/michael-oliver-facial-recognition-wrongful-arrest/5450821002/'},
-                {lat: 40.8587, lon: -74.1500, city: 'Woodbridge, NJ', type: 'Wrongful Arrest', title: 'Nijeer Parks', link: 'https://www.nj.com/news/2020/01/nj-man-sues-after-police-arrest-him-using-flawed-facial-recognition-tech.html'},
-                {lat: 30.2672, lon: -97.7431, city: 'Austin, TX', type: 'Mass Surveillance', title: 'Clearview AI Police Use', link: 'https://www.statesman.com/story/news/2020/02/07/austin-police-used-clearview-ai-without-telling-city-council/1931327007/'},
-                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Commercial Abuse', title: 'Rite Aid Misidentification', link: 'https://www.ftc.gov/news-events/news/press-releases/2023/12/rite-aid-banned-using-ai-facial-recognition-after-ftc-says-retailer-deployed-technology-without'},
-                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'First Amendment Chill', title: 'NYPD Protest Tracking', link: 'https://www.amnesty.org/en/latest/news/2020/09/nypd-facial-recognition-threat-to-protesters/'},
-                {lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA', type: 'Mass Surveillance', title: 'ALPR/Flock Safety Lawsuit', link: 'https://www.eff.org/cases/san-francisco-police-commission-surveillance-ordinance'},
-                {lat: 39.7392, lon: -104.9903, city: 'Denver, CO', type: 'Mass Surveillance', title: 'City-wide Surveillance Network', link: 'https://www.aclu-co.org/en/cases/aclu-v-city-county-denver-request-records-related-facial-recognition-technology'},
-                {lat: 45.5051, lon: -122.6750, city: 'Portland, OR', type: 'Policy Violation', title: 'Post-Ban Use Investigation', link: 'https://www.opb.org/article/2022/10/25/portland-police-banned-facial-recognition-technology-use-it-anyway/'},
-                {lat: 41.8781, lon: -87.6298, city: 'Chicago, IL', type: 'Commercial Abuse', title: 'ACLU v. Clearview AI Settlement', link: 'https://www.aclu-il.org/en/cases/aclu-v-clearview-ai'},
-                {lat: 38.9072, lon: -77.0369, city: 'Washington, D.C.', type: 'Mass Surveillance', title: 'FRT on Federal Property', link: 'https://www.eff.org/deeplinks/2021/04/use-face-recognition-technology-federal-law-enforcement-agencies'},
-                {lat: 47.6062, lon: -122.3321, city: 'Seattle, WA', type: 'Policy Victory', title: 'FRT Ban Enacted', link: 'https://www.aclu-wa.org/news/seattle-city-council-passes-ban-government-use-facial-recognition-technology'},
-                {lat: 33.7490, lon: -84.3880, city: 'Atlanta, GA', type: 'First Amendment Chill', title: 'Stop Cop City Protest Surveillance', link: 'https://www.aclu.org/news/technology-and-liberty/cop-city-surveillance-is-the-blueprint-for-authoritarianism'},
-                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Mass Surveillance', title: 'Real-Time Crime Center Expansion', link: 'https://www.latimes.com/california/story/2023-08-25/lapd-real-time-crime-center-surveillance-privacy'},
-                {lat: 39.2904, lon: -76.6122, city: 'Baltimore, MD', type: 'Mass Surveillance', title: 'Aerial Surveillance Program', link: 'https://www.aclu.org/cases/leaders-a-beautiful-struggle-v-baltimore-police-dept'},
-                {lat: 32.7157, lon: -117.1611, city: 'San Diego, CA', type: 'Mass Surveillance', title: 'Smart Streetlights FRT Potential', link: 'https://www.eff.org/deeplinks/2020/09/san-diego-smart-streetlights-surveillance-controversy'},
-                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Policy Violation', title: 'LAPD Misuse of FRT', link: 'https://www.latimes.com/california/story/2021-09-08/lapd-officers-facial-recognition-policy-violations'},
-                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'Commercial Abuse', title: 'Madison Square Garden Ban List', link: 'https://www.nytimes.com/2023/02/08/nyregion/madison-square-garden-facial-recognition-lawyer.html'},
-                {lat: 38.6270, lon: -90.1994, city: 'St. Louis, MO', type: 'Wrongful Arrest', title: 'Christopher Galtin', link: 'https://www.eff.org/deeplinks/2024/01/police-use-face-recognition-continues-wrack-real-world-harms'},
-                {lat: 25.7617, lon: -80.1918, city: 'Miami, FL', type: 'Wrongful Arrest', title: 'Jason Vernau', link: 'https://www.eff.org/deeplinks/2024/01/police-use-face-recognition-continues-wrack-real-world-harms'},
-                {lat: 30.2672, lon: -97.7431, city: 'Austin, TX', type: 'Wrongful Arrest', title: 'Randall Reid', link: 'https://www.nytimes.com/2023/08/06/technology/facial-recognition-misidentification-false-arrest.html'},
-                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'Commercial Abuse', title: 'Ousmane Bah/Apple Lawsuit', link: 'https://www.nytimes.com/2018/12/26/nyregion/apple-facial-recognition-lawsuit.html'},
-                {lat: 41.8781, lon: -87.6298, city: 'Chicago, IL', type: 'Commercial Abuse', title: 'BIPA Lawsuit Settlements', link: 'https://www.aclu-il.org/en/cases/aclu-v-clearview-ai'},
-                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'First Amendment Chill', title: 'Derrick Ingram Surveillance', link: 'https://www.amnesty.org/en/latest/news/2020/09/nypd-facial-recognition-threat-to-protesters/'},
-                {lat: 33.7490, lon: -84.3880, city: 'Atlanta, GA', type: 'Mass Surveillance', title: 'ALPR Expansion (Flock Safety)', link: 'https://www.aclu.org/news/technology-and-liberty/the-growing-threat-of-flock-safety-cameras'},
-                {lat: 42.3601, lon: -71.0589, city: 'Boston, MA', type: 'Policy Victory', title: 'FRT Ban Enacted', link: 'https://www.aclu-ma.org/en/press-releases/boston-passes-historic-ban-facial-recognition-technology'},
-                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Wrongful Arrest', title: 'Alonzo Sawyer', link: 'https://www.eff.org/deeplinks/2024/01/police-use-face-recognition-continues-wrack-real-world-harms'},
-                {lat: 39.9526, lon: -75.1652, city: 'Philadelphia, PA', type: 'Commercial Abuse', title: 'Rite Aid Misidentification Cases', link: 'https://www.ftc.gov/news-events/news/press-releases/2023/12/rite-aid-banned-using-ai-facial-recognition-after-ftc-says-retailer-deployed-technology-without'},
-                {lat: 39.2904, lon: -76.6122, city: 'Baltimore, MD', type: 'Commercial Abuse', title: 'Rite Aid Misidentification Cases', link: 'https://www.ftc.gov/news-events/news/press-releases/2023/12/rite-aid-banned-using-ai-facial-recognition-after-ftc-says-retailer-deployed-technology-without'},
-                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'Policy Violation', title: 'NYPD FRT Policy Violations', link: 'https://www.amnesty.org/en/latest/news/2025/11/amnesty-and-s-t-o-p-reveal-nypd-surveillance-abuses/'},
-                {lat: 44.9778, lon: -93.2650, city: 'Minneapolis, MN', type: 'Policy Victory', title: 'FRT Ban Enacted', link: 'https://www.aclu-mn.org/en/press-releases/minneapolis-bans-facial-recognition-technology'},
-                {lat: 30.4515, lon: -91.1871, city: 'Baton Rouge, LA', type: 'Mass Surveillance', title: 'Police Use of Clearview AI', link: 'https://www.eff.org/deeplinks/2020/02/louisiana-police-using-clearview-ai-without-public-knowledge'},
-                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Commercial Abuse', title: 'Clearview AI Lawsuit Impact', link: 'https://www.aclu.org/cases/aclu-v-clearview-ai'},
-                {lat: 38.9072, lon: -77.0369, city: 'Washington, D.C.', type: 'Policy Victory', title: 'FRT Ban Enacted', link: 'https://www.aclu.org/news/technology-and-liberty/dc-passes-historic-ban-on-police-use-of-facial-recognition-technology'},
-                {lat: 32.7157, lon: -117.1611, city: 'San Diego, CA', type: 'Mass Surveillance', title: 'Border/Customs FRT Use', link: 'https://www.aclu.org/news/technology-and-liberty/us-border-authorities-mass-surveillance-plans-are-out-of-control'},
-                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'Commercial Abuse', title: 'Brooklyn Nets Arena Surveillance', link: 'https://www.nytimes.com/2023/04/18/nyregion/brooklyn-nets-facial-recognition-policy.html'},
-                {lat: 39.7684, lon: -86.1580, city: 'Indianapolis, IN', type: 'Mass Surveillance', title: 'Police FRT Adoption', link: 'https://www.indystar.com/story/news/politics/2020/01/29/indianapolis-police-facial-recognition-controversy/4568800002/'},
-                {lat: 30.4515, lon: -91.1871, city: 'Baton Rouge, LA', type: 'Wrongful Arrest', title: 'Unidentified Case of False Match', link: 'https://capitalbnews.org/facial-recognition-wrongful-arrests/'},
-                {lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA', type: 'Policy Victory', title: 'First US City FRT Ban', link: 'https://www.aclu.org/news/technology-and-liberty/san-francisco-becomes-first-us-city-ban-government-use-facial-recognition'},
-                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Mass Surveillance', title: 'LAX Terminal Surveillance', link: 'https://www.eff.org/deeplinks/2018/02/airport-facial-recognition-raises-privacy-concerns'},
-                {lat: 42.3314, lon: -83.0458, city: 'Detroit, MI', type: 'Wrongful Arrest', title: '3rd Unidentified False Arrest', link: 'https://www.aclu.org/press-releases/after-third-wrongful-arrest-aclu-slams-detroit-police-department-for-continuing-to-use-faulty-facial-recognition-technology'},
-                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'Mass Surveillance', title: 'Public Housing FRT Use', link: 'https://www.eff.org/deeplinks/2020/02/nyc-public-housing-residents-sue-over-facial-recognition-surveillance'},
-                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Commercial Abuse', title: 'Macy\'s/Sunglass Hut Lawsuit', link: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/'},
-                {lat: 30.2672, lon: -97.7431, city: 'Austin, TX', type: 'Policy Violation', title: 'Police Failed to Follow FRT Rules', link: 'https://www.aclu.org/news/technology-and-liberty/austin-police-failed-to-follow-facial-recognition-rules'},
-                {lat: 38.8951, lon: -77.0369, city: 'Washington, D.C.', type: 'Policy Violation', title: 'FRT Used at Jan 6 Capitol Attack', link: 'https://www.washingtonpost.com/technology/2021/01/29/fbi-facial-recognition-capitol-riot/'},
-                {lat: 41.8781, lon: -87.6298, city: 'Chicago, IL', type: 'Mass Surveillance', title: 'ShotSpotter Controversy', link: 'https://www.eff.org/deeplinks/2021/07/shotspotter-wrongful-arrest-shows-why-technology-should-be-banned'},
-                {lat: 33.7490, lon: -84.3880, city: 'Atlanta, GA', type: 'Policy Violation', title: 'Violation of Consent Decrees', link: 'https://www.eff.org/deeplinks/2023/10/atlanta-police-surveillance-technology-raises-concerns'},
-                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'First Amendment Chill', title: 'BLM Protest Surveillance', link: 'https://www.aclu.org/press-releases/aclu-sues-lapd-over-surveillance-of-black-lives-matter-protests'},
-                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'Commercial Abuse', title: 'Apartment Building FRT Lawsuit', link: 'https://www.aclu.org/news/technology-and-liberty/residents-sue-over-facial-recognition-surveillance-in-nyc-housing'},
-                {lat: 45.5051, lon: -122.6750, city: 'Portland, OR', type: 'First Amendment Chill', title: 'Protester Identification Effort', link: 'https://www.aclu-or.org/en/publications/police-surveillance-portland-protests'},
-                {lat: 39.7684, lon: -86.1580, city: 'Indianapolis, IN', type: 'Wrongful Arrest', title: 'Unidentified Case of False Match', link: 'https://www.eff.org/deeplinks/2024/01/police-use-face-recognition-continues-wrack-real-world-harms'},
+                {lat: 42.3314, lon: -83.0458, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Robert Williams', link: 'https://www.aclu.org/cases/williams-v-city-of-detroit-face-recognition-false-arrest', color: 'red'},
+                {lat: 42.3314, lon: -83.0450, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Police Policy Change', link: 'https://www.theguardian.com/technology/article/2024/jul/01/detroit-police-facial-recognition-racial-bias', color: 'red'},
+                {lat: 40.8587, lon: -74.1500, city: 'Newark, NJ', type: 'Wrongful Arrest', title: 'Nijeer Parks', link: 'https://www.aclu.org/cases/parks-v-mccormac', color: 'red'},
+                {lat: 32.7767, lon: -96.7970, city: 'Dallas, TX', type: 'Wrongful Arrest', title: 'Harvey Murphy Jr.', link: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/', color: 'red'},
+                {lat: 38.6270, lon: -90.1994, city: 'St. Louis, MO', type: 'Wrongful Arrest', title: 'Christopher Galtin', link: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms', color: 'red'},
+                {lat: 25.7617, lon: -80.1918, city: 'Miami, FL', type: 'Wrongful Arrest', title: 'Jason Vernau', link: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms', color: 'red'},
+                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Commercial Abuse', title: 'Rite Aid Ban', link: 'https://www.ftc.gov/news-events/news/press-releases/2023/12/rite-aid-banned-using-ai-facial-recognition-after-ftc-says-retailer-deployed-technology-without', color: 'yellow'},
+                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'Commercial Abuse', title: 'MSG Lawyer Ban', link: 'https://www.nytimes.com/2022/12/22/nyregion/madison-square-garden-facial-recognition.html', color: 'yellow'},
+                {lat: 41.8781, lon: -87.6298, city: 'Chicago, IL', type: 'Commercial Abuse', title: 'Clearview AI Settlement', link: 'https://www.aclu.org/cases/aclu-v-clearview-ai', color: 'yellow'},
+                {lat: 40.7128, lon: -74.0061, city: 'Nationwide', type: 'Commercial Abuse', title: 'NFL Stadiums Credentialing', link: 'https://www.asisonline.org/security-management-magazine/latest-news/today-in-security/2024/august/nfl-stadiums-to-use-facial-recognition/', color: 'yellow'},
+                {lat: 36.1699, lon: -115.1398, city: 'Las Vegas, NV', type: 'Mass Surveillance', title: 'Police Union vs NFL', link: 'https://statescoop.com/las-vegas-police-nfl-facial-recognition-football-stadium/', color: 'blue'},
+                {lat: 30.2672, lon: -97.7431, city: 'Austin, TX', type: 'Mass Surveillance', title: 'Police Outsourcing Scans', link: 'https://www.biometricupdate.com/202405/police-in-us-cities-that-ban-facial-recognition-asking-others-to-do-it-for-them', color: 'blue'},
+                {lat: 29.9511, lon: -90.0715, city: 'New Orleans, LA', type: 'Mass Surveillance', title: 'Ban Reversal', link: 'https://www.theguardian.com/us-news/2022/oct/03/new-orleans-facial-recognition-technology-police', color: 'blue'},
+                {lat: 39.2904, lon: -76.6122, city: 'Baltimore, MD', type: 'Mass Surveillance', title: 'Aerial Surveillance Ruling', link: 'https://www.aclu.org/cases/leaders-beautiful-struggle-v-baltimore-police-department', color: 'blue'},
+                {lat: 38.9072, lon: -77.0369, city: 'Nationwide', type: 'Mass Surveillance', title: 'TSA Airport Expansion', link: 'https://www.thestreet.com/travel/you-can-now-pass-without-a-physical-passport-at-these-us-airports', color: 'blue'},
+                {lat: 37.3382, lon: -121.8863, city: 'San Jose, CA', type: 'Mass Surveillance', title: 'ALPR Lawsuit', link: 'https://www.eff.org/press/releases/lawsuit-challenges-san-joses-warrantless-alpr-mass-surveillance', color: 'blue'},
+                {lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA', type: 'Policy Victory', title: 'Video Surveillance Ordinance', link: 'https://www.theguardian.com/us-news/2022/oct/04/san-francisco-police-video-surveillance', color: 'green'},
+                {lat: 42.3601, lon: -71.0589, city: 'Boston, MA', type: 'Policy Victory', title: 'Face Surveillance Ban', link: 'https://www.npr.org/sections/live-updates-protests-for-racial-justice/2020/06/24/883107627/boston-lawmakers-vote-to-ban-use-of-facial-recognition-technology-by-the-city', color: 'green'},
+                {lat: 45.5051, lon: -122.6750, city: 'Portland, OR', type: 'Policy Victory', title: 'Strictest Ban in US', link: 'https://www.opb.org/article/2020/09/09/portland-passes-nations-toughest-restriction-on-facial-recognition-technology/', color: 'green'},
             ];
 
-            // Function to add markers
+            // Function to add markers directly (No Cluster)
             deploymentData.forEach(function(incident) {
                 let colorClass = '';
-                let typeText = '';
-
-                switch (incident.type) {
-                    case 'Wrongful Arrest':
-                        colorClass = 'text-red-500';
-                        typeText = 'Wrongful Arrest';
+                
+                // Match key logic: Red (Arrest), Yellow (Commercial), Blue (Surveillance), Green (Victory)
+                switch (incident.color) {
+                    case 'red':
+                        colorClass = 'bg-red-600';
                         break;
-                    case 'Mass Surveillance':
-                        colorClass = 'text-blue-400';
-                        typeText = 'Mass Surveillance/Legal Challenge';
+                    case 'blue':
+                        colorClass = 'bg-blue-600';
                         break;
-                    case 'Commercial Abuse':
-                        colorClass = 'text-yellow-400';
-                        typeText = 'Commercial Abuse';
+                    case 'yellow':
+                        colorClass = 'bg-yellow-500';
                         break;
-                    case 'Policy Violation':
-                        colorClass = 'text-yellow-500';
-                        typeText = 'Policy Violation';
-                        break;
-                    case 'First Amendment Chill':
-                        colorClass = 'text-pink-500';
-                        typeText = 'First Amendment Chill';
-                        break;
-                    case 'Policy Victory':
-                        colorClass = 'text-green-500';
-                        typeText = 'Policy Victory';
+                    case 'green':
+                        colorClass = 'bg-green-600';
                         break;
                     default:
-                        colorClass = 'text-white';
-                        typeText = 'Incident';
+                        colorClass = 'bg-gray-500';
                 }
 
                 const popupContent = `
                     <div class="p-2 bg-gray-800 text-gray-200">
-                        <h4 class="text-lg font-bold ${colorClass}">${incident.title}</h4>
+                        <h4 class="text-lg font-bold text-white">${incident.title}</h4>
                         <p class="text-sm font-semibold">${incident.city}</p>
-                        <p class="text-xs italic mb-2">${typeText}</p>
+                        <p class="text-xs italic mb-2">${incident.type}</p>
                         <a href="${incident.link}" target="_blank" class="text-blue-400 hover:text-blue-300 font-medium text-sm transition duration-150 underline">
                             Read the Full Story
                         </a>
                     </div>
                 `;
 
-                const marker = L.marker([incident.lat, incident.lon]);
-                marker.bindPopup(popupContent);
-                markers.addLayer(marker);
+                // BIGGER ICONS: 32px (2rem) with White Border
+                var customIcon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div class="rounded-full ${colorClass} shadow-xl transform transition duration-200 hover:scale-110 border-2 border-white" style="width: 2rem; height: 2rem;"></div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
+
+                L.marker([incident.lat, incident.lon], { icon: customIcon })
+                 .bindPopup(popupContent)
+                 .addTo(map);
             });
-
-            map.addLayer(markers);
-
 
             // Carousel Logic
             const track = document.querySelector('.carousel-track');
