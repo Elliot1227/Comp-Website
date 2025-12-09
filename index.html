@@ -3,385 +3,564 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Action Center: Contact Your Ohio Representative</title>
+    <title>Ban Biometric Surveillance</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin=""/>
+    
     <style>
-        /* General dark theme application */
+        /* Essential style to push content below the fixed header */
         body {
-            background-color: #1a1a1a;
-            color: #e5e7eb;
+            padding-top: 5rem; /* Matches h-20 (5rem) height of fixed header */
             font-family: 'Inter', sans-serif;
-            min-height: 100vh;
+            /* Force Dark Mode */
+            background-color: #1f2937; /* Gray-800 */
+            color: #f3f4f6; /* Gray-100 */
         }
-        .container {
-            max-width: 900px;
+        /* Full screen map container */
+        #map-container {
+            height: 60vh; 
+            z-index: 1; /* Map layers should sit below the fixed header */
         }
-        textarea {
-            resize: none;
+        /* Custom styles for the dropdown menu */
+        #dropdown-menu {
+            transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+            transform-origin: top right;
+        }
+        /* Ensure primary elements adopt dark theme */
+        .bg-white { background-color: #1f2937 !important; }
+        .text-gray-800 { color: #f3f4f6 !important; }
+        .border-gray-200 { border-color: #4b5563 !important; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important; }
+        
+        /* Carousel specific styles */
+        .carousel-container {
+            overflow: hidden;
+            border-radius: 0.75rem;
+            position: relative;
+        }
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+        .carousel-item {
+            min-width: 100%;
             height: 400px;
-            font-family: monospace;
-            line-height: 1.5;
+            position: relative;
         }
-        .text-neon {
-            color: #0d9488;
+        .carousel-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
-        /* Loader Animation */
-        .loader {
-            border: 4px solid #374151; /* Gray-700 */
-            border-top: 4px solid #0d9488; /* Neon Teal */
-            border-radius: 50%;
-            width: 24px;
-            height: 24px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            vertical-align: middle;
-            margin-right: 8px;
+        .carousel-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            opacity: 0.7;
+            transition: opacity 0.2s;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .carousel-button:hover {
+            opacity: 1;
         }
-        .typing-cursor::after {
-            content: '|';
-            animation: blink 1s step-start infinite;
-        }
-        @keyframes blink {
-            50% { opacity: 0; }
+        .citation-block {
+            margin-top: 1rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid #4b5563;
+            font-size: 0.875rem;
+            color: #9ca3af;
         }
     </style>
 </head>
-<body class="p-8">
 
-    <div class="container mx-auto">
-        <header class="text-center mb-10">
-            <h1 class="text-5xl font-extrabold text-white mb-3">Action Center: Ban the Scan</h1>
-            <p class="text-xl text-gray-400">Enter your Ohio zip code to find your Representative and generate a custom advocacy letter.</p>
-        </header>
+<body class="antialiased min-h-screen">
 
-        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 space-y-8">
-            
-            <!-- Input Form -->
-            <div class="grid md:grid-cols-2 gap-6">
-                <div>
-                    <label for="user-name" class="block text-lg font-medium text-gray-300 mb-2">
-                        1. Your Full Name:
-                    </label>
-                    <input type="text" id="user-name" placeholder="Jane Doe" 
-                           class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-neon focus:border-neon placeholder-gray-500">
-                </div>
-                <div>
-                    <label for="user-zip" class="block text-lg font-medium text-gray-300 mb-2">
-                        2. Your Ohio Zip Code:
-                    </label>
-                    <input type="text" id="user-zip" placeholder="44308" maxlength="5"
-                           class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-neon focus:border-neon placeholder-gray-500">
-                </div>
+    <!-- Fixed Header -->
+    <header class="fixed top-0 left-0 right-0 h-20 bg-gray-900 border-b border-gray-700 shadow-xl z-[100] flex items-center justify-between px-6 lg:px-12">
+        <h1 class="text-3xl font-extrabold text-red-500">
+            Ban Biometric Surveillance
+        </h1>
+        
+        <!-- Navigation Dropdown (Hamburger Menu) -->
+        <div class="relative">
+            <button id="dropdown-toggle" class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500">
+                <!-- Hamburger Icon -->
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <div id="dropdown-menu" class="absolute right-0 mt-3 w-60 bg-gray-800 border border-gray-700 rounded-lg shadow-2xl opacity-0 invisible translate-y-2 origin-top-right">
+                <a href="#hero" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Looming Threat</a>
+                <a href="#tracker" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Accountability Tracker</a>
+                <a href="#bias-stats" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Algorithmic Bias</a>
+                <a href="#analysis" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Authoritarian Control</a>
+                <a href="#dichotomy" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">False Dichotomy</a>
+                <a href="#fourth-amendment" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Fourth Amendment</a>
+                <a href="#first-amendment" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">First Amendment</a>
+                <a href="#action" class="block px-4 py-3 text-sm text-gray-100 hover:bg-red-600/20 transition duration-150">Complete Ban & Action</a>
             </div>
+        </div>
+    </header>
 
-            <!-- Generate Button -->
-            <div class="text-center">
-                <button id="generate-btn" onclick="generateLetter()" class="w-full md:w-auto px-8 py-4 bg-teal-700 hover:bg-teal-600 text-white font-bold text-lg rounded-lg shadow-lg transition duration-200 flex items-center justify-center mx-auto">
-                    <span id="btn-text">Find Rep & Generate AI Letter</span>
-                </button>
-                <p id="error-msg" class="text-red-500 mt-2 hidden text-sm font-semibold"></p>
+    <!-- Main Content Area -->
+    <main class="container mx-auto px-4 lg:px-8">
+
+        <!-- Hero Section -->
+        <section id="hero" class="py-16 md:py-20 flex flex-col lg:flex-row items-center justify-between min-h-[70vh] text-center lg:text-left">
+            <div class="lg:w-1/2 space-y-8">
+                <h2 class="text-5xl lg:text-6xl font-extrabold tracking-tight text-white">
+                    The Algorithmic Threat to Democracy
+                </h2>
+                <p class="text-xl text-gray-300 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                    The unchecked growth of AI-powered biometric surveillance—including Facial Recognition Technology (FRT)—is a present danger actively being deployed by law enforcement and private entities across the country. These tools capture and catalog our most private characteristics to build a searchable, permanent record of every public movement, shattering our right to anonymity and paving the path for a chilling, authoritarian future.
+                </p>
+                <a href="#action" class="inline-block px-8 py-3 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-xl shadow-lg transition duration-200 transform hover:scale-105">
+                    Demand a Complete Ban
+                </a>
             </div>
             
-            <!-- Representative Info Result (Hidden initially) -->
-            <div id="rep-info" class="hidden bg-gray-900 border border-teal-800 p-6 rounded-lg flex flex-col space-y-4">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <div class="text-left w-full">
-                        <p id="rep-status-label" class="text-gray-400 text-xs uppercase tracking-wide font-bold">Identified Representative:</p>
-                        
-                        <!-- Dynamic Container for Reps -->
-                        <div id="reps-container" class="mt-2 space-y-3">
-                            <!-- Content injected by JS -->
-                        </div>
+            <!-- Image Carousel -->
+            <div id="carousel" class="carousel-container lg:w-1/2 w-full mt-12 lg:mt-0 shadow-2xl bg-gray-800 border-4 border-gray-700">
+                <div class="carousel-track">
+                    <div class="carousel-item">
+                        <img src="https://news-cdn.bindg.com/indg/images/960_2480_COVER_CROP_7888x3040x27x0_cb3cea404c8086e5b8bae590a59cfacial-rec334879311-1-16.webp" alt="Facial Recognition Technology Scan" class="opacity-80">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://res.cloudinary.com/pai/image/upload/f_auto/q_auto/c_fill,h_480/v1/reports/d1rytvr7gmk1sx.cloudfront.net/wp-content/uploads/2020/06/istock-962263142.jpg" alt="Digital Face Scan Data" class="opacity-80">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.foxtv.com/static.fox2detroit.com/www.fox2detroit.com/content/uploads/2021/04/932/524/wjbk-facial-recognition-aclu-lawsuit.jpg?ve=1&tl=1" alt="Robert Williams and Family" class="opacity-80">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1616161560417-66d4db5892ec?q=80&w=1000&auto=format&fit=crop" alt="Fingerprint Security" class="opacity-80">
                     </div>
                 </div>
-                <div class="text-right w-full border-t border-gray-700 pt-2">
-                    <p class="text-xs text-gray-500 mt-1 text-center md:text-right">
-                        *Links open the official .gov contact form.
+                <button id="prev-button" class="carousel-button left-4 bg-gray-700 p-2 rounded-full hover:bg-gray-600">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <button id="next-button" class="carousel-button right-4 bg-gray-700 p-2 rounded-full hover:bg-gray-600">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+            </div>
+        </section>
+
+        <!-- Accountability Tracker Section (Map) -->
+        <section id="tracker" class="pt-16 pb-12">
+            <h2 class="text-4xl font-bold mb-8 text-center text-red-500">
+                Accountability Tracker: Documented Harms
+            </h2>
+            <div id="map-container" class="rounded-xl shadow-2xl border-4 border-gray-700"></div>
+            <div class="mt-8 p-4 bg-gray-800 rounded-xl border border-gray-700 shadow-inner">
+                <h3 class="text-xl font-semibold mb-2 text-red-500">Map Key: Documented Harm Categories</h3>
+                <div class="flex flex-wrap justify-center gap-4 text-sm font-medium">
+                    <span class="flex items-center text-red-400"><span class="h-3 w-3 rounded-full bg-red-600 mr-2"></span> Wrongful Arrest/Misidentification</span>
+                    <span class="flex items-center text-yellow-400"><span class="h-3 w-3 rounded-full bg-yellow-600 mr-2"></span> Commercial/Private Abuse</span>
+                    <span class="flex items-center text-blue-400"><span class="h-3 w-3 rounded-full bg-blue-600 mr-2"></span> Mass Surveillance/Legal Challenge</span>
+                    <span class="flex items-center text-green-400"><span class="h-3 w-3 rounded-full bg-green-600 mr-2"></span> Policy Victory / Ban</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Algorithmic Bias Section -->
+        <section id="bias-stats" class="py-16">
+            <h2 class="text-4xl font-bold mb-12 text-center text-red-500">
+                Algorithmic Bias: When the Computer Gets It Wrong
+            </h2>
+            <div class="grid md:grid-cols-3 gap-10 text-center">
+                
+                <!-- Stat 1: Racial Disparity -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border-t-4 border-red-600 flex flex-col justify-between">
+                    <div>
+                        <p class="text-5xl lg:text-6xl font-black text-red-500 mb-4">11.25%</p>
+                        <h3 class="text-2xl font-bold text-white mb-4">Lower Accuracy for Africans</h3>
+                        <p class="text-gray-300">
+                            Studies show that FRT demonstrates an 11.25% lower True Positive Rate (TPR) for African populations compared to Caucasians. This is not a glitch; this is systemic failure encoded, translating directly into the disproportionate criminalization of communities of color.
+                        </p>
+                    </div>
+                    <div class="citation-block text-left">
+                        <a href="https://doi.org/10.48550/arXiv.2307.10011" target="_blank" class="text-sm font-medium text-blue-400 hover:text-blue-500 underline">Source: Sarridis et al. (2025)</a>
+                    </div>
+                </div>
+
+                <!-- Stat 2: Intersectionality -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border-t-4 border-orange-500 flex flex-col justify-between">
+                    <div>
+                        <p class="text-5xl lg:text-6xl font-black text-orange-500 mb-4">+39.89%</p>
+                        <h3 class="text-2xl font-bold text-white mb-4">Error Spike for Older Black Women</h3>
+                        <p class="text-gray-300">
+                            The biases compound: African females over 60 years old face a +39.89% higher misidentification rate compared to the lowest-error demographic. This highlights the crushing reality that the technology is least reliable for those who already face the highest scrutiny.
+                        </p>
+                    </div>
+                    <div class="citation-block text-left">
+                        <a href="https://doi.org/10.48550/arXiv.2307.10011" target="_blank" class="text-sm font-medium text-blue-400 hover:text-blue-500 underline">Source: Sarridis et al. (2025)</a>
+                    </div>
+                </div>
+
+                <!-- Stat 3: Failure Rate If Used Alone -->
+                <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border-t-4 border-teal-500 flex flex-col justify-between">
+                    <div>
+                        <p class="text-5xl lg:text-6xl font-black text-teal-500 mb-4">96%</p>
+                        <h3 class="text-2xl font-bold text-white mb-4">Failure Rate If Used Alone</h3>
+                        <p class="text-gray-300">
+                            Former Detroit Police Chief James Craig acknowledged that if the city's officers were to use facial recognition by itself, it would yield misidentifications "96% of the time."
+                        </p>
+                    </div>
+                    <div class="citation-block text-left">
+                        <a href="https://innocenceproject.org/news/when-artificial-intelligence-gets-it-wrong/" target="_blank" class="text-sm font-medium text-blue-400 hover:text-blue-500 underline">Source: Innocence Project (2023)</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Deeper Dive on Bias - SEPARATE BOX -->
+            <div class="mt-16 p-8 bg-gray-900 rounded-xl shadow-2xl border border-gray-700">
+                <h3 class="text-2xl font-bold text-white mb-4 border-b pb-2 border-red-600">The Root of the Failure: Bad Design Meets the Real World</h3>
+                <p class="text-lg text-gray-300 leading-relaxed mb-4">
+                    The core problem is twofold: biased model design and inherent structural limitations. Algorithms are historically trained on non-diverse datasets (a "lack of diverse representations").
+                </p>
+                <div class="citation-block mb-6">
+                    <a href="https://doi.org/10.48550/arXiv.2307.10011" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Sarridis et al.</a>
+                </div>
+
+                <p class="text-lg text-gray-300 leading-relaxed mb-4">
+                    Furthermore, accuracy plummets in real-world environments where variables like "bad angles and poor lighting make it less accurate." For people with darker skin, poor lighting often results in less visible feature definition for the camera, contributing to higher misidentification rates. No amount of tweaking can fix a system fundamentally flawed by light, shadow, and biased input data.
+                </p>
+                <div class="citation-block">
+                    <a href="https://www.washingtonpost.com/opinions/2025/02/24/ai-crime-facial-recognition-technology/" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Johnson and Johnson</a>
+                </div>
+            </div>
+
+            <!-- Robert Williams Image Section -->
+            <div class="mt-16 text-center">
+                <div class="max-w-6xl mx-auto bg-gray-700 rounded-xl shadow-xl overflow-hidden border border-gray-600">
+                    <img src="https://images.foxtv.com/static.fox2detroit.com/www.fox2detroit.com/content/uploads/2021/04/932/524/wjbk-facial-recognition-aclu-lawsuit.jpg?ve=1&tl=1" alt="Robert Williams and Family" class="w-full h-auto opacity-80">
+                </div>
+                <p class="mt-4 text-sm text-gray-500 italic">
+                    Robert Williams (Detroit, 2020) was the first known person in the U.S. to be wrongfully arrested based solely on a faulty facial recognition match. He was detained for 30 hours for a crime he did not commit.
+                </p>
+            </div>
+        </section>
+
+        <!-- Privacy & Authoritarian Control Section -->
+        <section id="analysis" class="py-16">
+            <h2 class="text-4xl font-bold mb-10 text-center text-red-500">
+                Privacy & Authoritarian Control: The Loss of Anonymous Life
+            </h2>
+            <div class="flex flex-col lg:flex-row items-center gap-10">
+                <div class="lg:w-1/2 flex justify-center order-2 lg:order-1">
+                    <div class="w-full max-w-lg h-80 bg-gray-700 rounded-xl shadow-xl flex items-center justify-center overflow-hidden border border-gray-600">
+                        <img src="https://cdn.sanity.io/images/cxgd3urn/production/7d6076165f13ebcbb38be144cca33d58fb3b1bde-622x350.jpg?w=1920&h=1080&q=85&fit=crop&auto=format" alt="Surveillance of Uyghur population" class="object-cover w-full h-full opacity-70">
+                    </div>
+                </div>
+                <div class="lg:w-1/2 space-y-6 order-1 lg:order-2">
+                    <p class="text-xl text-gray-300 leading-relaxed mb-4">
+                        Privacy is the right to move and associate freely without permanent observation. FRT shatters this, enabling a severe "power imbalance between the state and the citizenry." The commercialization of surveillance, where private companies scrape billions of images and sell the infrastructure to police, bypasses democratic oversight entirely.
+                    </p>
+                    <div class="citation-block">
+                        <a href="https://doi.org/10.1007/s10676-021-09605-2" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Markus and Miller</a>
+                    </div>
+
+                    <p class="text-xl text-gray-300 leading-relaxed border-l-4 border-red-600 pl-4 mt-6">
+                        The ultimate outcome of unchecked biometric tracking is the slide into tyranny. The capability is already weaponized: the Chinese Communist Party's mass surveillance of the Uyghur Muslim population relies heavily on facial and gait recognition to track individuals, restrict their freedoms, and enforce ethnic cleansing. Allowing these tools to flourish in a democracy dangerously normalizes the technology of oppression.
                     </p>
                 </div>
             </div>
+        </section>
 
-            <!-- Email Text Area -->
-            <div id="result-area" class="opacity-50 transition-opacity duration-500">
-                <label for="email-content" class="block text-lg font-medium text-gray-300 mb-2">
-                    3. Your Generated Draft:
-                </label>
-                <textarea id="email-content" readonly class="w-full p-4 rounded-lg bg-gray-900 border border-gray-600 text-gray-200 focus:ring-neon focus:border-neon shadow-inner" placeholder="Your letter will be generated here..."></textarea>
+        <!-- Fourth Amendment Section -->
+        <section id="fourth-amendment" class="py-16 bg-gray-900 rounded-xl my-16 shadow-2xl px-6 lg:px-16 w-full max-w-7xl mx-auto">
+            <h2 class="text-4xl font-bold mb-8 text-center text-red-500">
+                Fourth Amendment Violation: The Comprehensive Chronicle
+            </h2>
+            <p class="text-xl text-gray-300 leading-relaxed max-w-5xl mx-auto mb-4 text-center">
+                The Fourth Amendment secures "the privacies of life" against arbitrary government power. While a fleeting glance in public is not a search, the Supreme Court ruled in Carpenter v. United States that long-term tracking of location data is unconstitutional without a warrant because it creates a "comprehensive chronicle of the user’s past movements."
+            </p>
+            <div class="citation-block text-center mb-10">
+                <a href="https://www.loyolaoflosangeleslawreview.org/smile-youre-on-camera-police-departments-use-of-facial-recognition-technology-the-fourth-amendment" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Bass, Adriana (2022)</a>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <button id="copy-button" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
-                    Copy Letter to Clipboard
-                </button>
-                <a href="index.html" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 text-center">
-                    ← Back to Report
-                </a>
+            <div class="flex flex-col lg:flex-row gap-10">
+                <div class="lg:w-1/2 space-y-4">
+                    <h3 class="text-2xl font-semibold text-white">FRT as a Perpetual Search</h3>
+                    <p class="text-lg text-gray-300">
+                        FRT is far more pervasive than traditional methods. It automatically links every sighting of a person's face across massive networks of cameras to their personal identity. This passive, continuous data collection constitutes the exact kind of unwarranted "search" the Supreme Court ruled against. Every public outing becomes a piece of evidence stored in a permanent, searchable database.
+                    </p>
+                    <div class="h-48 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center overflow-hidden border border-gray-600">
+                        <img src="https://images.unsplash.com/photo-1521791055366-0d553872125f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8bGVnYWwlMjBkb2N1bWVudHN8ZW58MHx8MHx8fDA%3D" alt="Legal documents" class="object-cover w-full h-full opacity-60">
+                    </div>
+                </div>
+                <div class="lg:w-1/2 space-y-4">
+                    <h3 class="text-2xl font-semibold text-white">Eroding Probable Cause</h3>
+                    <p class="text-lg text-gray-300">
+                        If the state can identify you instantly and track your entire movement history, the constitutional requirement for police to establish probable cause before an investigation begins is effectively gutted. Because FRT transforms random public observation into a searchable, limitless record, its deployment is fundamentally incompatible with our constitutional safeguards.
+                    </p>
+                    <div class="h-48 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center overflow-hidden border border-gray-600">
+                        <img src="https://static.vecteezy.com/system/resources/previews/022/771/521/non_2x/themis-holds-the-scales-of-justice-statue-of-liberty-holding-the-scales-of-justice-the-concept-of-justice-generative-ai-photo.jpg" alt="Scales of Justice" class="object-cover w-full h-full opacity-60">
+                    </div>
+                </div>
             </div>
+        </section>
 
-            <div id="copy-status" class="mt-4 text-center text-green-500 font-semibold hidden">Copied to clipboard! Now use the link above to send.</div>
-        </div>
-    </div>
+        <!-- First Amendment Section -->
+        <section id="first-amendment" class="py-16">
+            <h2 class="text-4xl font-bold mb-8 text-center text-red-500">
+                First Amendment Violation: The Chilling Effect
+            </h2>
+            <p class="text-xl text-gray-300 leading-relaxed max-w-4xl mx-auto mb-10 text-center">
+                The ability to speak freely and organize without fear is non-negotiable in a free society. Biometric surveillance is a tool of intimidation that actively discourages the exercise of these rights, generating a dangerous "chilling effect."
+            </p>
+            <div class="flex flex-col lg:flex-row gap-10">
+                <div class="lg:w-1/2 space-y-4">
+                    <h3 class="text-2xl font-semibold text-white">Silencing Dissent</h3>
+                    <p class="text-lg text-gray-300 mb-2">
+                        As found in research by Bass (2022), Black Lives Matter protestors "feared that the police would retaliate against them" since law enforcement could easily identify them using FRT.
+                    </p>
+                    <div class="citation-block mb-4">
+                        <a href="https://www.loyolaoflosangeleslawreview.org/smile-youre-on-camera-police-departments-use-of-facial-recognition-technology-the-fourth-amendment" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Bass, Adriana (2022)</a>
+                    </div>
+                    
+                    <p class="text-lg text-gray-300">
+                        If citizens know they can be permanently logged while attending a protest, organizing a union, or joining a political rally, they "may hesitate to participate," weakening the very fabric of democracy.
+                    </p>
+                    <div class="h-48 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center overflow-hidden border border-gray-600">
+                        <img src="https://ichef.bbci.co.uk/news/1024/cpsprodpb/BC66/production/_113003284_reuters4e.jpg.webp" alt="Black Lives Matter Protest" class="object-cover w-full h-full opacity-60">
+                    </div>
+                </div>
+                <div class="lg:w-1/2 space-y-4">
+                    <h3 class="text-2xl font-semibold text-white">The Loss of Anonymity</h3>
+                    <p class="text-lg text-gray-300">
+                        The threat of permanent identification induces self-censorship. Activism, political speech, and even association with certain groups rely on anonymity to protect participants from harassment or retaliation by the state or private entities. FRT eliminates that layer of protection, turning constitutional freedoms into high-risk behaviors.
+                    </p>
+                    <div class="h-48 bg-gray-700 rounded-xl shadow-lg flex items-center justify-center overflow-hidden border border-gray-600">
+                        <img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=1000&auto=format&fit=crop" alt="Typing on keyboard" class="object-cover w-full h-full opacity-60">
+                    </div>
+                </div>
+            </div>
+        </section>
 
+        <!-- The False Dichotomy -->
+        <section id="dichotomy" class="mb-16">
+            <h2 class="text-4xl font-bold mb-6 text-white border-b border-gray-700 pb-2">The False Dichotomy: Justice vs. Surveillance</h2>
+
+            <p class="text-lg text-gray-400 mb-8">
+                Proponents argue that the public safety benefits of FRT outweigh privacy concerns, but this is a false choice. Effective, less intrusive alternatives exist, proving that we can choose both safety and liberty. The comparison below shows where investment truly pays off.
+            </p>
+
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <!-- T-Chart Column 1: Punitive Surveillance -->
+                <div class="bg-gray-800 p-6 rounded-lg shadow-2xl border-l-4 border-red-700">
+                    <h3 class="text-2xl font-extrabold mb-4 text-error">Punitive Surveillance & Biometrics (FRT)</h3>
+                    <ul class="space-y-4 text-gray-300">
+                        <li class="border-b border-gray-700 pb-4">
+                            <span class="text-red-600 mr-2 font-black text-xl">✗</span> <strong>Magnifies Racial Bias:</strong> Systems exhibit structurally higher error rates against Black and Brown communities.
+                            <div class="citation-block">
+                                <a href="https://doi.org/10.48550/arXiv.2307.10011" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Sarridis et al. (2025)</a>
+                            </div>
+                        </li>
+                        <li class="border-b border-gray-700 pb-4">
+                            <span class="text-red-600 mr-2 font-black text-xl">✗</span> <strong>Constitutional Violation:</strong> Creates unwarranted movement records, breaching the Fourth Amendment.
+                            <div class="citation-block">
+                                <a href="https://www.loyolaoflosangeleslawreview.org/smile-youre-on-camera-police-departments-use-of-facial-recognition-technology-the-fourth-amendment" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Bass, Adriana (2022)</a>
+                            </div>
+                        </li>
+                        <li class="border-b border-gray-700 pb-4">
+                            <span class="text-red-600 mr-2 font-black text-xl">✗</span> <strong>Suppresses Speech:</strong> Generates a "chilling effect" on dissent and political assembly.
+                            <div class="citation-block">
+                                <a href="https://www.loyolaoflosangeleslawreview.org/smile-youre-on-camera-police-departments-use-of-facial-recognition-technology-the-fourth-amendment" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Bass, Adriana (2022)</a>
+                            </div>
+                        </li>
+                        <li class="border-b border-gray-700 pb-4">
+                            <span class="text-red-600 mr-2 font-black text-xl">✗</span> <strong>Poor Efficacy:</strong> Crime reduction rates from FRT adoption are low (average 14% from 2002 to 2020).
+                            <div class="citation-block">
+                                <a href="https://www.washingtonpost.com/opinions/2025/02/24/ai-crime-facial-recognition-technology/" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Johnson and Johnson (2025)</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- T-Chart Column 2: Less Intrusive Measures -->
+                <div class="bg-gray-800 p-6 rounded-lg shadow-2xl border-l-4 border-green-700">
+                    <h3 class="text-2xl font-extrabold mb-4 text-neon">Less Intrusive Measures (Public Health Investment)</h3>
+                    <ul class="space-y-4 text-gray-300">
+                        <li class="border-b border-gray-700 pb-4">
+                            <span class="text-green-600 mr-2 font-black text-xl">✓</span> <strong>Addresses Root Causes:</strong> Focuses on jobs, housing, and mental health treatment.
+                            <div class="citation-block">
+                                <a href="https://www.brookings.edu/articles/a-new-community-safety-blueprint-how-the-federal-government-can-address-violence-and-harm-through-a-public-health-approach/" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Sebastian et al. (2024)</a>
+                            </div>
+                        </li>
+                        <li class="border-b border-gray-700 pb-4">
+                            <span class="text-green-600 mr-2 font-black text-xl">✓</span> <strong>High Safety Return:</strong> Healthcare funding is associated with reducing "violence-related arrests by 19% to 29%."
+                            <div class="citation-block">
+                                <a href="https://www.washingtonpost.com/opinions/2025/02/24/ai-crime-facial-recognition-technology/" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Johnson and Johnson (2025)</a>
+                            </div>
+                        </li>
+                        <li class="border-b border-gray-700 pb-4">
+                            <span class="text-green-600 mr-2 font-black text-xl">✓</span> <strong>Community Desirability:</strong> "60% of survivors prefer prevention and rehabilitation as opposed to punishment."
+                            <div class="citation-block">
+                                <a href="https://www.brookings.edu/articles/a-new-community-safety-blueprint-how-the-federal-government-can-address-violence-and-harm-through-a-public-health-approach/" target="_blank" class="text-blue-400 hover:text-blue-500 underline">Source: Sebastian et al. (2024)</a>
+                            </div>
+                        </li>
+                        <li class="border-b border-gray-700 pb-4"><span class="text-green-600 mr-2 font-black text-xl">✓</span> <strong>Upholds Rights:</strong> Achieves safety goals without encroaching on any fundamental liberties.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="bg-teal-900/50 p-6 rounded-lg text-center shadow-xl">
+                <h3 class="text-3xl font-extrabold text-neon">The Choice is Clear.</h3>
+                <p class="text-lg text-gray-200 mt-2">
+                    Choosing costly, biased surveillance over investments in public health is not merely irresponsible—it is a policy failure that prioritizes control over the inalienable rights to liberty and justice for all.
+                </p>
+            </div>
+        </section>
+
+        <!-- Final Call to Action -->
+        <section id="action" class="text-center pt-8 mb-16">
+            <h2 class="text-4xl font-bold mb-6 text-white">The Only Path Forward: A Complete Ban</h2>
+            <p class="text-xl text-gray-400 mb-8 max-w-3xl mx-auto">
+                The inherent flaws of AI-powered biometric surveillance systems demonstrate that this technology is structurally and constitutionally incompatible with a free and democratic society. Regulation cannot fix a tool whose fundamental design perpetuates inequality and enables tyranny.
+            </p>
+            <a href="action.html" class="inline-block bg-red-700 hover:bg-red-600 text-white text-2xl font-bold py-4 px-12 rounded-lg shadow-2xl transform transition duration-300 hover:scale-105">
+                CONTACT YOUR REPRESENTATIVE NOW
+            </a>
+        </section>
+
+    </main>
+
+    <!-- Leaflet JavaScript and Plugins -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+    
     <script>
-        const userNameInput = document.getElementById('user-name');
-        const userZipInput = document.getElementById('user-zip');
-        const generateBtn = document.getElementById('generate-btn');
-        const btnText = document.getElementById('btn-text');
-        const emailContent = document.getElementById('email-content');
-        const copyButton = document.getElementById('copy-button');
-        const copyStatus = document.getElementById('copy-status');
-        const errorMsg = document.getElementById('error-msg');
-        const resultArea = document.getElementById('result-area');
-        
-        // Rep Info Elements
-        const repInfoBox = document.getElementById('rep-info');
-        const repsContainer = document.getElementById('reps-container');
-        const repStatusLabel = document.getElementById('rep-status-label');
+        document.addEventListener('DOMContentLoaded', () => {
+            // Dropdown Menu Logic - CORRECTED ID
+            const dropdownButton = document.getElementById('dropdown-toggle');
+            const dropdownMenu = document.getElementById('dropdown-menu');
 
-        // DATABASE: Ohio Representatives (118th/119th Congress)
-        const ohioReps = {
-            1: { name: "Rep. Greg Landsman", link: "https://landsman.house.gov/address_authentication?form=/contact" },
-            2: { name: "Rep. Brad Wenstrup", link: "https://wenstrup.house.gov/contact/" },
-            3: { name: "Rep. Joyce Beatty", link: "https://beatty.house.gov/contact/email-me" },
-            4: { name: "Rep. Jim Jordan", link: "https://jordan.house.gov/contact/" },
-            5: { name: "Rep. Bob Latta", link: "https://latta.house.gov/contact/" },
-            6: { name: "Rep. Michael Rulli", link: "https://rulli.house.gov/contact" },
-            7: { name: "Rep. Max Miller", link: "https://maxmiller.house.gov/contact" },
-            8: { name: "Rep. Warren Davidson", link: "https://davidson.house.gov/contact" },
-            9: { name: "Rep. Marcy Kaptur", link: "https://kaptur.house.gov/contact" },
-            10: { name: "Rep. Mike Turner", link: "https://turner.house.gov/email" },
-            11: { name: "Rep. Shontel Brown", link: "https://shontelbrown.house.gov/contact" },
-            12: { name: "Rep. Troy Balderson", link: "https://balderson.house.gov/contact/email-me" },
-            13: { name: "Rep. Emilia Sykes", link: "https://sykes.house.gov/contact" },
-            14: { name: "Rep. David Joyce", link: "https://joyce.house.gov/contact" },
-            15: { name: "Rep. Mike Carey", link: "https://carey.house.gov/contact" }
-        };
+            if (dropdownButton && dropdownMenu) {
+                dropdownButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isInvisible = dropdownMenu.classList.contains('invisible');
+                    
+                    if (isInvisible) {
+                        dropdownMenu.classList.remove('invisible', 'opacity-0', 'translate-y-2');
+                        dropdownMenu.classList.add('opacity-100', 'translate-y-0');
+                    } else {
+                        dropdownMenu.classList.add('invisible', 'opacity-0', 'translate-y-2');
+                        dropdownMenu.classList.remove('opacity-100', 'translate-y-0');
+                    }
+                });
 
-        // MAPPING: Ohio Zips to District IDs (Arrays handle overlaps)
-        // Data derived from GovTrack and Ohio District Maps
-        const zipToDistrict = {
-            // Cincinnati (1, 2, 8)
-            '45202': [1], '45203': [1], '45204': [1], '45205': [1], 
-            '45208': [1, 2], // Overlap
-            '45209': [1], '45220': [1], '45219': [1], 
-            '45230': [2], '45244': [2], '45255': [2], '45140': [2],
-            '45011': [8], '45014': [8], '45069': [8],
-            
-            // Columbus (3, 15, 4, 12)
-            '43201': [3], '43202': [3], '43203': [3], '43204': [3, 15], 
-            '43205': [3], '43206': [3], '43209': [3], '43210': [3], 
-            '43211': [3], '43212': [3, 15], '43215': [3], '43219': [3], 
-            '43224': [3], '43220': [15], '43221': [15], '43235': [15], 
-            '43026': [15, 4], // Hilliard overlap
-            '43123': [15], 
-            '43085': [4], '43054': [12],
-            
-            // Cleveland / Akron (7, 11, 13, 14)
-            '44101': [11], '44102': [11, 7], '44103': [11], '44104': [11], 
-            '44105': [11], '44106': [11], '44108': [11], '44110': [11], 
-            '44112': [11], '44113': [11, 7], '44114': [11], '44115': [11], 
-            '44120': [11], '44122': [11], '44128': [11],
-            '44017': [7], '44130': [7], '44133': [7], '44136': [7],
-            '44301': [13], '44302': [13], '44303': [13], '44304': [13],
-            '44308': [13], '44310': [13], '44313': [13], '44333': [13],
-            '44702': [13], '44708': [13, 7],
-            '44060': [14], '44077': [14],
-            
-            // Dayton (10)
-            '45402': [10], '45403': [10], '45404': [10], '45405': [10], 
-            '45406': [10], '45417': [10], '45424': [10],
-            
-            // Toledo (9, 5)
-            '43604': [9], '43605': [9], '43606': [9], '43612': [9], 
-            '43614': [9], '43615': [9], '43537': [5, 9], '43402': [5],
-            
-            // Rural / Other
-            '45701': [6], // Athens
-            '43952': [6], // Steubenville
-            '45840': [5], // Findlay
-            '43055': [12] // Newark
-        };
-
-        function getDistrictsFromZip(zip) {
-            // 1. Check exact mapping
-            if (zipToDistrict[zip]) {
-                return zipToDistrict[zip];
-            }
-            
-            // 2. Logic-based fallback for unknown Ohio zips
-            // Starts with 43, 44, 45
-            const zipPrefix = parseInt(zip.substring(0, 3));
-            const zipNum = parseInt(zip);
-
-            if (zipPrefix >= 430 && zipPrefix <= 458) {
-                // If we don't have exact data, it likely falls into a rural district or we can't be sure.
-                // We return null to trigger the "Unknown District" fallback which links to the House finder.
-                return null;
-            }
-            
-            // Not an Ohio Zip
-            return "NOT_OHIO";
-        }
-
-        async function generateLetter() {
-            const name = userNameInput.value.trim();
-            const zip = userZipInput.value.trim();
-
-            // Validation
-            if (!name || !zip) {
-                errorMsg.textContent = "Please enter both your name and zip code.";
-                errorMsg.classList.remove('hidden');
-                return;
-            }
-            if (zip.length !== 5 || isNaN(zip)) {
-                errorMsg.textContent = "Please enter a valid 5-digit zip code.";
-                errorMsg.classList.remove('hidden');
-                return;
+                document.addEventListener('click', (event) => {
+                    if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        dropdownMenu.classList.add('invisible', 'opacity-0', 'translate-y-2');
+                        dropdownMenu.classList.remove('opacity-100', 'translate-y-0');
+                    }
+                });
             }
 
-            errorMsg.classList.add('hidden');
-            repInfoBox.classList.add('hidden');
-            
-            // UI Loading
-            generateBtn.disabled = true;
-            btnText.innerHTML = '<span class="loader"></span> Identifying District...';
-            emailContent.value = "";
-            resultArea.classList.add('opacity-50');
-            copyButton.disabled = true;
+            // Map Initialization - Use 'map-container' to match CSS ID
+            const map = L.map('map-container').setView([39.8283, -98.5795], 4); // Centered on US
 
-            // Simulate Processing
-            await new Promise(r => setTimeout(r, 800));
-            btnText.innerHTML = '<span class="loader"></span> Drafting Response...';
-            
-            // Get Districts
-            const districtIds = getDistrictsFromZip(zip);
-            
-            let letterSalutation = "Representative";
-            let repDisplayHTML = "";
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
 
-            if (districtIds === "NOT_OHIO") {
-                errorMsg.textContent = "This tool is currently optimized for Ohio zip codes (43xxx-45xxx).";
-                errorMsg.classList.remove('hidden');
-                generateBtn.disabled = false;
-                btnText.textContent = "Find Rep & Generate AI Letter";
-                return;
-            }
+            // 20 Verified Data Points
+            const deploymentData = [
+                {lat: 42.3314, lon: -83.0458, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Robert Williams', link: 'https://www.aclu.org/cases/williams-v-city-of-detroit-face-recognition-false-arrest', color: 'red'},
+                {lat: 42.3314, lon: -83.0450, city: 'Detroit, MI', type: 'Wrongful Arrest', title: 'Police Policy Change', link: 'https://www.theguardian.com/technology/article/2024/jul/01/detroit-police-facial-recognition-racial-bias', color: 'red'},
+                {lat: 40.8587, lon: -74.1500, city: 'Newark, NJ', type: 'Wrongful Arrest', title: 'Nijeer Parks', link: 'https://www.aclu.org/cases/parks-v-mccormac', color: 'red'},
+                {lat: 32.7767, lon: -96.7970, city: 'Dallas, TX', type: 'Wrongful Arrest', title: 'Harvey Murphy Jr.', link: 'https://www.cbsnews.com/sacramento/news/texas-macys-sunglass-hut-facial-recognition-software-wrongful-arrest-sacramento-alibi/', color: 'red'},
+                {lat: 38.6270, lon: -90.1994, city: 'St. Louis, MO', type: 'Wrongful Arrest', title: 'Christopher Galtin', link: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms', color: 'red'},
+                {lat: 25.7617, lon: -80.1918, city: 'Miami, FL', type: 'Wrongful Arrest', title: 'Jason Vernau', link: 'https://www.eff.org/deeplinks/2025/01/police-use-face-recognition-continues-wrack-real-world-harms', color: 'red'},
+                {lat: 34.0522, lon: -118.2437, city: 'Los Angeles, CA', type: 'Commercial Abuse', title: 'Rite Aid Ban', link: 'https://www.ftc.gov/news-events/news/press-releases/2023/12/rite-aid-banned-using-ai-facial-recognition-after-ftc-says-retailer-deployed-technology-without', color: 'yellow'},
+                {lat: 40.7128, lon: -74.0060, city: 'New York, NY', type: 'Commercial Abuse', title: 'MSG Lawyer Ban', link: 'https://www.nytimes.com/2022/12/22/nyregion/madison-square-garden-facial-recognition.html', color: 'yellow'},
+                {lat: 41.8781, lon: -87.6298, city: 'Chicago, IL', type: 'Commercial Abuse', title: 'Clearview AI Settlement', link: 'https://www.aclu.org/cases/aclu-v-clearview-ai', color: 'yellow'},
+                {lat: 40.7128, lon: -74.0061, city: 'Nationwide', type: 'Commercial Abuse', title: 'NFL Stadiums Credentialing', link: 'https://www.asisonline.org/security-management-magazine/latest-news/today-in-security/2024/august/nfl-stadiums-to-use-facial-recognition/', color: 'yellow'},
+                {lat: 36.1699, lon: -115.1398, city: 'Las Vegas, NV', type: 'Mass Surveillance', title: 'Police Union vs NFL', link: 'https://statescoop.com/las-vegas-police-nfl-facial-recognition-football-stadium/', color: 'blue'},
+                {lat: 30.2672, lon: -97.7431, city: 'Austin, TX', type: 'Mass Surveillance', title: 'Police Outsourcing Scans', link: 'https://www.biometricupdate.com/202405/police-in-us-cities-that-ban-facial-recognition-asking-others-to-do-it-for-them', color: 'blue'},
+                {lat: 29.9511, lon: -90.0715, city: 'New Orleans, LA', type: 'Mass Surveillance', title: 'Ban Reversal', link: 'https://www.theguardian.com/us-news/2022/oct/03/new-orleans-facial-recognition-technology-police', color: 'blue'},
+                {lat: 39.2904, lon: -76.6122, city: 'Baltimore, MD', type: 'Mass Surveillance', title: 'Aerial Surveillance Ruling', link: 'https://www.aclu.org/cases/leaders-beautiful-struggle-v-baltimore-police-department', color: 'blue'},
+                {lat: 38.9072, lon: -77.0369, city: 'Nationwide', type: 'Mass Surveillance', title: 'TSA Airport Expansion', link: 'https://www.thestreet.com/travel/you-can-now-pass-without-a-physical-passport-at-these-us-airports', color: 'blue'},
+                {lat: 37.3382, lon: -121.8863, city: 'San Jose, CA', type: 'Mass Surveillance', title: 'ALPR Lawsuit', link: 'https://www.eff.org/press/releases/lawsuit-challenges-san-joses-warrantless-alpr-mass-surveillance', color: 'blue'},
+                {lat: 37.7749, lon: -122.4194, city: 'San Francisco, CA', type: 'Policy Victory', title: 'Video Surveillance Ordinance', link: 'https://www.theguardian.com/us-news/2022/oct/04/san-francisco-police-video-surveillance', color: 'green'},
+                {lat: 42.3601, lon: -71.0589, city: 'Boston, MA', type: 'Policy Victory', title: 'Face Surveillance Ban', link: 'https://www.npr.org/sections/live-updates-protests-for-racial-justice/2020/06/24/883107627/boston-lawmakers-vote-to-ban-use-of-facial-recognition-technology-by-the-city', color: 'green'},
+                {lat: 45.5051, lon: -122.6750, city: 'Portland, OR', type: 'Policy Victory', title: 'Strictest Ban in US', link: 'https://www.opb.org/article/2020/09/09/portland-passes-nations-toughest-restriction-on-facial-recognition-technology/', color: 'green'},
+            ];
 
-            if (districtIds) {
-                // Handle Single or Multiple Districts
-                const districtArray = Array.isArray(districtIds) ? districtIds : [districtIds];
+            // Function to add markers directly (No Cluster)
+            deploymentData.forEach(function(incident) {
+                let colorClass = '';
                 
-                if (districtArray.length > 1) {
-                    repStatusLabel.textContent = "Your Zip Code Overlaps Multiple Districts:";
-                    letterSalutation = "Ohio Representatives"; // Generic for multiple
-                } else {
-                    repStatusLabel.textContent = "Identified Representative:";
-                    letterSalutation = ohioReps[districtArray[0]].name;
+                // Match key logic: Red (Arrest), Yellow (Commercial), Blue (Surveillance), Green (Victory)
+                switch (incident.color) {
+                    case 'red':
+                        colorClass = 'bg-red-600';
+                        break;
+                    case 'blue':
+                        colorClass = 'bg-blue-600';
+                        break;
+                    case 'yellow':
+                        colorClass = 'bg-yellow-500';
+                        break;
+                    case 'green':
+                        colorClass = 'bg-green-600';
+                        break;
+                    default:
+                        colorClass = 'bg-gray-500';
                 }
 
-                // Build UI for each Rep found
-                districtArray.forEach(id => {
-                    const rep = ohioReps[id];
-                    repDisplayHTML += `
-                        <div class="flex justify-between items-center bg-gray-800 p-3 rounded border border-gray-600">
-                            <div>
-                                <p class="text-white font-bold">${rep.name}</p>
-                                <p class="text-teal-400 text-sm">Ohio District ${id}</p>
-                            </div>
-                            <a href="${rep.link}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded transition">
-                                Contact &rarr;
-                            </a>
-                        </div>
-                    `;
-                });
-            } else {
-                // Valid Ohio zip but not in our specific map -> Fallback
-                repStatusLabel.textContent = "Valid Ohio Zip (District Unclear):";
-                letterSalutation = "Ohio Representative";
-                repDisplayHTML = `
-                    <div class="flex justify-between items-center bg-gray-800 p-3 rounded border border-gray-600">
-                        <div>
-                            <p class="text-white font-bold">Find Your Specific Rep</p>
-                            <p class="text-teal-400 text-sm">Use House.gov lookup</p>
-                        </div>
-                        <a href="https://www.house.gov/representatives/find-your-representative" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded transition">
-                            Search Tool &rarr;
+                const popupContent = `
+                    <div class="p-2 bg-gray-800 text-gray-200">
+                        <h4 class="text-lg font-bold text-white">${incident.title}</h4>
+                        <p class="text-sm font-semibold">${incident.city}</p>
+                        <p class="text-xs italic mb-2">${incident.type}</p>
+                        <a href="${incident.link}" target="_blank" class="text-blue-400 hover:text-blue-300 font-medium text-sm transition duration-150 underline">
+                            Read the Full Story
                         </a>
                     </div>
                 `;
-            }
 
-            // Update Rep UI
-            repsContainer.innerHTML = repDisplayHTML;
-            repInfoBox.classList.remove('hidden');
+                // BIGGER ICONS: 32px (2rem) with White Border
+                var customIcon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div class="rounded-full ${colorClass} shadow-xl transform transition duration-200 hover:scale-110 border-2 border-white" style="width: 2rem; height: 2rem;"></div>`,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                });
 
-            await new Promise(r => setTimeout(r, 800));
+                L.marker([incident.lat, incident.lon], { icon: customIcon })
+                 .bindPopup(popupContent)
+                 .addTo(map);
+            });
 
-            // Construct Letter
-            const letterBody = `Subject: Urgent: Support a Ban on Biometric Surveillance
+            // Carousel Logic
+            const track = document.querySelector('.carousel-track');
+            const items = document.querySelectorAll('.carousel-item');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            let currentIndex = 0;
+            const totalItems = items.length;
 
-Dear ${letterSalutation},
+            const updateCarousel = () => {
+                const offset = -currentIndex * 100;
+                track.style.transform = `translateX(${offset}%)`;
+            };
 
-My name is ${name}, and I am a constituent in your district. I am writing to demand immediate legislative action to prohibit the use of biometric surveillance technologies, specifically Facial Recognition Technology (FRT), by government agencies in Ohio.
+            nextButton.addEventListener('click', () => {
+                currentIndex = (currentIndex + 1) % totalItems;
+                updateCarousel();
+            });
 
-Our citizens deserve safety that respects civil liberties. However, the unchecked deployment of FRT creates a "comprehensive chronicle" of our public movements, violating our Fourth Amendment rights against unreasonable searches. 
-
-Furthermore, the technology is scientifically flawed. Studies confirm it misidentifies people of color at significantly higher rates—up to 39% higher for certain demographics—leading to wrongful arrests and deepening systemic inequality.
-
-We cannot accept a tool that trades our anonymity for a false sense of security. I urge you to introduce or co-sponsor legislation that bans government use of this technology.
-
-I look forward to your response on how you intend to protect our constitutional rights.
-
-Sincerely,
-
-${name}`;
-
-            // Reset UI
-            btnText.textContent = "Regenerate Letter";
-            generateBtn.disabled = false;
-            resultArea.classList.remove('opacity-50');
-            
-            // Typing Effect
-            typeWriter(letterBody);
-        }
-
-        function typeWriter(text) {
-            let i = 0;
-            emailContent.value = "";
-            emailContent.classList.add('typing-cursor');
-            
-            const speed = 2; 
-
-            function type() {
-                if (i < text.length) {
-                    emailContent.value += text.charAt(i);
-                    emailContent.scrollTop = emailContent.scrollHeight; 
-                    i++;
-                    setTimeout(type, speed);
-                } else {
-                    emailContent.classList.remove('typing-cursor');
-                    copyButton.disabled = false;
-                    copyButton.classList.add('animate-pulse');
-                    setTimeout(() => copyButton.classList.remove('animate-pulse'), 1000);
-                }
-            }
-            type();
-        }
-
-        copyButton.addEventListener('click', () => {
-            emailContent.select();
-            emailContent.setSelectionRange(0, 99999);
-            document.execCommand('copy');
-            
-            copyStatus.classList.remove('hidden');
-            setTimeout(() => {
-                copyStatus.classList.add('hidden');
-            }, 3000);
+            prevButton.addEventListener('click', () => {
+                currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+                updateCarousel();
+            });
         });
     </script>
 </body>
