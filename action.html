@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Action Center: Contact Your Representative</title>
+    <title>Action Center: Contact Your Ohio Representative</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* General dark theme application */
@@ -25,6 +25,29 @@
         .text-neon {
             color: #0d9488;
         }
+        /* Loader Animation */
+        .loader {
+            border: 4px solid #374151; /* Gray-700 */
+            border-top: 4px solid #0d9488; /* Neon Teal */
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .typing-cursor::after {
+            content: '|';
+            animation: blink 1s step-start infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
     </style>
 </head>
 <body class="p-8">
@@ -32,112 +55,334 @@
     <div class="container mx-auto">
         <header class="text-center mb-10">
             <h1 class="text-5xl font-extrabold text-white mb-3">Action Center: Ban the Scan</h1>
-            <p class="text-xl text-gray-400">Use this template to contact your federal or state representatives and demand a prohibition on biometric surveillance.</p>
+            <p class="text-xl text-gray-400">Enter your Ohio zip code to find your Representative and generate a custom advocacy letter.</p>
         </header>
 
-        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl">
-            <!-- Input Form for Name -->
-            <div class="mb-6">
-                <label for="rep-name" class="block text-lg font-medium text-gray-300 mb-2">
-                    1. Enter Your Representative's Name or Office Title:
-                </label>
-                <input type="text" id="rep-name" placeholder="E.g., Senator Smith, Representative Jones, or To Whom It May Concern" 
-                       class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-neon focus:border-neon" 
-                       oninput="updateEmail()">
-                <p class="text-sm text-gray-500 mt-2">The text in the email subject and greeting will update automatically.</p>
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 space-y-8">
+            
+            <!-- Input Form -->
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <label for="user-name" class="block text-lg font-medium text-gray-300 mb-2">
+                        1. Your Full Name:
+                    </label>
+                    <input type="text" id="user-name" placeholder="Jane Doe" 
+                           class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-neon focus:border-neon placeholder-gray-500">
+                </div>
+                <div>
+                    <label for="user-zip" class="block text-lg font-medium text-gray-300 mb-2">
+                        2. Your Ohio Zip Code:
+                    </label>
+                    <input type="text" id="user-zip" placeholder="44308" maxlength="5"
+                           class="w-full p-3 rounded-lg bg-gray-700 border border-gray-600 text-white focus:ring-neon focus:border-neon placeholder-gray-500">
+                </div>
+            </div>
+
+            <!-- Generate Button -->
+            <div class="text-center">
+                <button id="generate-btn" onclick="generateLetter()" class="w-full md:w-auto px-8 py-4 bg-teal-700 hover:bg-teal-600 text-white font-bold text-lg rounded-lg shadow-lg transition duration-200 flex items-center justify-center mx-auto">
+                    <span id="btn-text">Find Rep & Generate AI Letter</span>
+                </button>
+                <p id="error-msg" class="text-red-500 mt-2 hidden text-sm font-semibold"></p>
+            </div>
+            
+            <!-- Representative Info Result (Hidden initially) -->
+            <div id="rep-info" class="hidden bg-gray-900 border border-teal-800 p-6 rounded-lg flex flex-col space-y-4">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div class="text-left w-full">
+                        <p id="rep-status-label" class="text-gray-400 text-xs uppercase tracking-wide font-bold">Identified Representative:</p>
+                        
+                        <!-- Dynamic Container for Reps -->
+                        <div id="reps-container" class="mt-2 space-y-3">
+                            <!-- Content injected by JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right w-full border-t border-gray-700 pt-2">
+                    <p class="text-xs text-gray-500 mt-1 text-center md:text-right">
+                        *Links open the official .gov contact form.
+                    </p>
+                </div>
             </div>
 
             <!-- Email Text Area -->
-            <div class="mb-6">
+            <div id="result-area" class="opacity-50 transition-opacity duration-500">
                 <label for="email-content" class="block text-lg font-medium text-gray-300 mb-2">
-                    2. Customizable Email Draft:
+                    3. Your Generated Draft:
                 </label>
-                <textarea id="email-content" class="w-full p-4 rounded-lg bg-gray-700 border border-gray-600 text-gray-200 focus:ring-neon focus:border-neon"></textarea>
+                <textarea id="email-content" readonly class="w-full p-4 rounded-lg bg-gray-900 border border-gray-600 text-gray-200 focus:ring-neon focus:border-neon shadow-inner" placeholder="Your letter will be generated here..."></textarea>
             </div>
 
             <!-- Action Buttons -->
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                <button id="copy-button" class="bg-neon hover:bg-teal-600 text-gray-900 font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 transform hover:scale-105">
-                    Copy Email to Clipboard
+                <button id="copy-button" class="bg-red-600 hover:bg-red-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Copy Letter to Clipboard
                 </button>
                 <a href="index.html" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg transition duration-300 text-center">
                     ← Back to Report
                 </a>
             </div>
 
-            <div id="copy-status" class="mt-4 text-center text-green-500 font-semibold hidden">Copied to clipboard! Now paste it into your email tool.</div>
+            <div id="copy-status" class="mt-4 text-center text-green-500 font-semibold hidden">Copied to clipboard! Now use the link above to send.</div>
         </div>
     </div>
 
     <script>
+        const userNameInput = document.getElementById('user-name');
+        const userZipInput = document.getElementById('user-zip');
+        const generateBtn = document.getElementById('generate-btn');
+        const btnText = document.getElementById('btn-text');
         const emailContent = document.getElementById('email-content');
-        const repNameInput = document.getElementById('rep-name');
         const copyButton = document.getElementById('copy-button');
         const copyStatus = document.getElementById('copy-status');
+        const errorMsg = document.getElementById('error-msg');
+        const resultArea = document.getElementById('result-area');
+        
+        // Rep Info Elements
+        const repInfoBox = document.getElementById('rep-info');
+        const repsContainer = document.getElementById('reps-container');
+        const repStatusLabel = document.getElementById('rep-status-label');
 
-        const defaultContent = `
-Dear [Representative Name],
+        // DATABASE: Ohio Representatives (118th/119th Congress)
+        const ohioReps = {
+            1: { name: "Rep. Greg Landsman", link: "https://landsman.house.gov/address_authentication?form=/contact" },
+            2: { name: "Rep. Brad Wenstrup", link: "https://wenstrup.house.gov/contact/" },
+            3: { name: "Rep. Joyce Beatty", link: "https://beatty.house.gov/contact/email-me" },
+            4: { name: "Rep. Jim Jordan", link: "https://jordan.house.gov/contact/" },
+            5: { name: "Rep. Bob Latta", link: "https://latta.house.gov/contact/" },
+            6: { name: "Rep. Michael Rulli", link: "https://rulli.house.gov/contact" },
+            7: { name: "Rep. Max Miller", link: "https://maxmiller.house.gov/contact" },
+            8: { name: "Rep. Warren Davidson", link: "https://davidson.house.gov/contact" },
+            9: { name: "Rep. Marcy Kaptur", link: "https://kaptur.house.gov/contact" },
+            10: { name: "Rep. Mike Turner", link: "https://turner.house.gov/email" },
+            11: { name: "Rep. Shontel Brown", link: "https://shontelbrown.house.gov/contact" },
+            12: { name: "Rep. Troy Balderson", link: "https://balderson.house.gov/contact/email-me" },
+            13: { name: "Rep. Emilia Sykes", link: "https://sykes.house.gov/contact" },
+            14: { name: "Rep. David Joyce", link: "https://joyce.house.gov/contact" },
+            15: { name: "Rep. Mike Carey", link: "https://carey.house.gov/contact" }
+        };
 
-I am writing to urge you to support a complete prohibition on the use of biometric surveillance technologies, such as Facial Recognition Technology (FRT), by all law enforcement agencies and government bodies in our jurisdiction.
+        // MAPPING: Ohio Zips to District IDs (Arrays handle overlaps)
+        // Data derived from GovTrack and Ohio District Maps
+        const zipToDistrict = {
+            // Cincinnati (1, 2, 8)
+            '45202': [1], '45203': [1], '45204': [1], '45205': [1], 
+            '45208': [1, 2], // Overlap
+            '45209': [1], '45220': [1], '45219': [1], 
+            '45230': [2], '45244': [2], '45255': [2], '45140': [2],
+            '45011': [8], '45014': [8], '45069': [8],
+            
+            // Columbus (3, 15, 4, 12)
+            '43201': [3], '43202': [3], '43203': [3], '43204': [3, 15], 
+            '43205': [3], '43206': [3], '43209': [3], '43210': [3], 
+            '43211': [3], '43212': [3, 15], '43215': [3], '43219': [3], 
+            '43224': [3], '43220': [15], '43221': [15], '43235': [15], 
+            '43026': [15, 4], // Hilliard overlap
+            '43123': [15], 
+            '43085': [4], '43054': [12],
+            
+            // Cleveland / Akron (7, 11, 13, 14)
+            '44101': [11], '44102': [11, 7], '44103': [11], '44104': [11], 
+            '44105': [11], '44106': [11], '44108': [11], '44110': [11], 
+            '44112': [11], '44113': [11, 7], '44114': [11], '44115': [11], 
+            '44120': [11], '44122': [11], '44128': [11],
+            '44017': [7], '44130': [7], '44133': [7], '44136': [7],
+            '44301': [13], '44302': [13], '44303': [13], '44304': [13],
+            '44308': [13], '44310': [13], '44313': [13], '44333': [13],
+            '44702': [13], '44708': [13, 7],
+            '44060': [14], '44077': [14],
+            
+            // Dayton (10)
+            '45402': [10], '45403': [10], '45404': [10], '45405': [10], 
+            '45406': [10], '45417': [10], '45424': [10],
+            
+            // Toledo (9, 5)
+            '43604': [9], '43605': [9], '43606': [9], '43612': [9], 
+            '43614': [9], '43615': [9], '43537': [5, 9], '43402': [5],
+            
+            // Rural / Other
+            '45701': [6], // Athens
+            '43952': [6], // Steubenville
+            '45840': [5], // Findlay
+            '43055': [12] // Newark
+        };
 
-This technology poses a fundamental threat to civil liberties and public safety:
+        function getDistrictsFromZip(zip) {
+            // 1. Check exact mapping
+            if (zipToDistrict[zip]) {
+                return zipToDistrict[zip];
+            }
+            
+            // 2. Logic-based fallback for unknown Ohio zips
+            // Starts with 43, 44, 45
+            const zipPrefix = parseInt(zip.substring(0, 3));
+            const zipNum = parseInt(zip);
 
-1.  **Racial Bias and Wrongful Arrest:** FRT is known to have significantly higher error rates for people of color, leading directly to the wrongful detention and traumatization of innocent individuals. The failure rate is not a bug—it is an inherent flaw that amplifies systemic discrimination.
+            if (zipPrefix >= 430 && zipPrefix <= 458) {
+                // If we don't have exact data, it likely falls into a rural district or we can't be sure.
+                // We return null to trigger the "Unknown District" fallback which links to the House finder.
+                return null;
+            }
+            
+            // Not an Ohio Zip
+            return "NOT_OHIO";
+        }
 
-2.  **Constitutional Violation:** Pervasive, constant tracking transforms our public lives into a permanent, searchable record, violating the Fourth Amendment’s guarantee against unreasonable searches. Furthermore, the threat of being perpetually identified creates a chilling effect on the First Amendment rights to free speech and assembly.
+        async function generateLetter() {
+            const name = userNameInput.value.trim();
+            const zip = userZipInput.value.trim();
 
-3.  **The False Promise of Safety:** Evidence shows that investment in community-based public health measures (like mental health and substance abuse services) is more effective at reducing violent crime than punitive surveillance technology. We must prioritize proven, constitutional solutions over expensive, flawed tools of control.
+            // Validation
+            if (!name || !zip) {
+                errorMsg.textContent = "Please enter both your name and zip code.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            if (zip.length !== 5 || isNaN(zip)) {
+                errorMsg.textContent = "Please enter a valid 5-digit zip code.";
+                errorMsg.classList.remove('hidden');
+                return;
+            }
 
-The risk of error, bias, and the slide toward authoritarian monitoring is simply too high. Regulation is insufficient. The only responsible path forward is a complete ban.
+            errorMsg.classList.add('hidden');
+            repInfoBox.classList.add('hidden');
+            
+            // UI Loading
+            generateBtn.disabled = true;
+            btnText.innerHTML = '<span class="loader"></span> Identifying District...';
+            emailContent.value = "";
+            resultArea.classList.add('opacity-50');
+            copyButton.disabled = true;
 
-I urge you to take immediate legislative action to ban the scan and protect the constitutional rights of all citizens.
+            // Simulate Processing
+            await new Promise(r => setTimeout(r, 800));
+            btnText.innerHTML = '<span class="loader"></span> Drafting Response...';
+            
+            // Get Districts
+            const districtIds = getDistrictsFromZip(zip);
+            
+            let letterSalutation = "Representative";
+            let repDisplayHTML = "";
+
+            if (districtIds === "NOT_OHIO") {
+                errorMsg.textContent = "This tool is currently optimized for Ohio zip codes (43xxx-45xxx).";
+                errorMsg.classList.remove('hidden');
+                generateBtn.disabled = false;
+                btnText.textContent = "Find Rep & Generate AI Letter";
+                return;
+            }
+
+            if (districtIds) {
+                // Handle Single or Multiple Districts
+                const districtArray = Array.isArray(districtIds) ? districtIds : [districtIds];
+                
+                if (districtArray.length > 1) {
+                    repStatusLabel.textContent = "Your Zip Code Overlaps Multiple Districts:";
+                    letterSalutation = "Ohio Representatives"; // Generic for multiple
+                } else {
+                    repStatusLabel.textContent = "Identified Representative:";
+                    letterSalutation = ohioReps[districtArray[0]].name;
+                }
+
+                // Build UI for each Rep found
+                districtArray.forEach(id => {
+                    const rep = ohioReps[id];
+                    repDisplayHTML += `
+                        <div class="flex justify-between items-center bg-gray-800 p-3 rounded border border-gray-600">
+                            <div>
+                                <p class="text-white font-bold">${rep.name}</p>
+                                <p class="text-teal-400 text-sm">Ohio District ${id}</p>
+                            </div>
+                            <a href="${rep.link}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded transition">
+                                Contact &rarr;
+                            </a>
+                        </div>
+                    `;
+                });
+            } else {
+                // Valid Ohio zip but not in our specific map -> Fallback
+                repStatusLabel.textContent = "Valid Ohio Zip (District Unclear):";
+                letterSalutation = "Ohio Representative";
+                repDisplayHTML = `
+                    <div class="flex justify-between items-center bg-gray-800 p-3 rounded border border-gray-600">
+                        <div>
+                            <p class="text-white font-bold">Find Your Specific Rep</p>
+                            <p class="text-teal-400 text-sm">Use House.gov lookup</p>
+                        </div>
+                        <a href="https://www.house.gov/representatives/find-your-representative" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold rounded transition">
+                            Search Tool &rarr;
+                        </a>
+                    </div>
+                `;
+            }
+
+            // Update Rep UI
+            repsContainer.innerHTML = repDisplayHTML;
+            repInfoBox.classList.remove('hidden');
+
+            await new Promise(r => setTimeout(r, 800));
+
+            // Construct Letter
+            const letterBody = `Subject: Urgent: Support a Ban on Biometric Surveillance
+
+Dear ${letterSalutation},
+
+My name is ${name}, and I am a constituent in your district. I am writing to demand immediate legislative action to prohibit the use of biometric surveillance technologies, specifically Facial Recognition Technology (FRT), by government agencies in Ohio.
+
+Our citizens deserve safety that respects civil liberties. However, the unchecked deployment of FRT creates a "comprehensive chronicle" of our public movements, violating our Fourth Amendment rights against unreasonable searches. 
+
+Furthermore, the technology is scientifically flawed. Studies confirm it misidentifies people of color at significantly higher rates—up to 39% higher for certain demographics—leading to wrongful arrests and deepening systemic inequality.
+
+We cannot accept a tool that trades our anonymity for a false sense of security. I urge you to introduce or co-sponsor legislation that bans government use of this technology.
+
+I look forward to your response on how you intend to protect our constitutional rights.
 
 Sincerely,
 
-[Your Name and Address]
-`;
+${name}`;
 
-        function updateEmail() {
-            let name = repNameInput.value.trim() || "Representative Name";
+            // Reset UI
+            btnText.textContent = "Regenerate Letter";
+            generateBtn.disabled = false;
+            resultArea.classList.remove('opacity-50');
             
-            let subject = name;
-            if (name.toLowerCase().includes('senator') || name.toLowerCase().includes('representative') || name.toLowerCase().includes('congress')) {
-                subject = name;
-            } else if (name === 'To Whom It May Concern') {
-                subject = "The Looming Threat of Biometric Surveillance";
-            } else {
-                subject = name; // If user puts a specific name
-            }
+            // Typing Effect
+            typeWriter(letterBody);
+        }
 
-            let greeting = name;
-            if (!name.toLowerCase().includes('dear')) {
-                greeting = `Dear ${name}`;
-            }
+        function typeWriter(text) {
+            let i = 0;
+            emailContent.value = "";
+            emailContent.classList.add('typing-cursor');
+            
+            const speed = 2; 
 
-            const updatedContent = defaultContent
-                .replace("[Representative Name]", subject)
-                .replace("Dear [Representative Name],", `${greeting},`);
-                
-            emailContent.value = updatedContent;
+            function type() {
+                if (i < text.length) {
+                    emailContent.value += text.charAt(i);
+                    emailContent.scrollTop = emailContent.scrollHeight; 
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    emailContent.classList.remove('typing-cursor');
+                    copyButton.disabled = false;
+                    copyButton.classList.add('animate-pulse');
+                    setTimeout(() => copyButton.classList.remove('animate-pulse'), 1000);
+                }
+            }
+            type();
         }
 
         copyButton.addEventListener('click', () => {
-            // Select the text area content
             emailContent.select();
-            emailContent.setSelectionRange(0, 99999); // For mobile devices
-
-            // Copy the text
+            emailContent.setSelectionRange(0, 99999);
             document.execCommand('copy');
-
-            // Show status message
+            
             copyStatus.classList.remove('hidden');
             setTimeout(() => {
                 copyStatus.classList.add('hidden');
             }, 3000);
         });
-
-        // Initialize content on load
-        updateEmail();
     </script>
 </body>
 </html>
